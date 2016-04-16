@@ -102,16 +102,16 @@ const instructionCycles = [7, 6, 0, 0, 0, 3, 5, 0, 3, 2, 2, 0, 0, 4, 6, 0,
 
       case ADDRESS_MODE_INDIRECT:
         tempAddress = (argbyte2 * 256 + argbyte1);
-        return (localMem.ReadMem(tempAddress + 1) * 256 + localMem.ReadMem(tempAddress));
+        return (localMem.readMem(tempAddress + 1) * 256 + localMem.readMem(tempAddress));
       break;
 
       case ADDRESS_MODE_X_INDEXED_INDIRECT:
         tempAddress = (argbyte1 + x) & 0xff;
-        return (localMem.ReadMem(tempAddress + 1) * 256 + localMem.ReadMem(tempAddress));
+        return (localMem.readMem(tempAddress + 1) * 256 + localMem.readMem(tempAddress));
       break;
 
       case ADDRESS_MODE_INDIRECT_Y_INDEXED:
-        tempAddress = localMem.ReadMem(argbyte1 + 1) * 256 + localMem.ReadMem(argbyte1) + y;
+        tempAddress = localMem.readMem(argbyte1 + 1) * 256 + localMem.readMem(argbyte1) + y;
         return tempAddress;
       break;
 
