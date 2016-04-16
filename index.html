@@ -8,7 +8,12 @@
   <body>
     <h1>6502 Emulator From Scratch</h1>
     <p>This is JavaScript Test</p>
+<button onclick="step()">Step</button>
     <script language="JavaScript">
+      function step() {
+        alert("Hello");
+      }
+
       var mymem = new memory();
       var mycpu = new cpu(mymem);
       mycpu.step();
