@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>6502 Emulator From Scratch</title>
+    <script src="Memory.js"></script>
+    <script src="Cpu.js"></script>
+  </head>
+  <body>
+    <h1>6502 Emulator From Scratch</h1>
+    <p>This is JavaScript Test</p>
+    <script language="JavaScript">
+      var mymem = new memory();
+      var mycpu = new cpu(mymem);
+      mycpu.step();
+      mycpu.step();
+      alert(mymem.readMem(8));
+    </script>
+  </body>
+</html>
