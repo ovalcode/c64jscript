@@ -8,6 +8,7 @@
   <body>
     <h1>6502 Emulator From Scratch</h1>
     <p>This is JavaScript Test</p>
+<textarea id="registers" name="reg" rows="1" cols="50"></textarea>
 <button onclick="step()">Step</button>
     <script language="JavaScript">
 
@@ -16,7 +17,10 @@
 
       function step() {
         mycpu.step();
-        alert(mycpu.getDebugReg());
+        var t = document.getElementById("registers");
+        t.value = mycpu.getDebugReg();
+
+        //alert(mycpu.getDebugReg());
       }
 
       /*mycpu.step();
