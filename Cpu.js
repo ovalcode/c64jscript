@@ -136,10 +136,12 @@ const instructionCycles = [7, 6, 0, 0, 0, 3, 5, 0, 3, 2, 2, 0, 0, 4, 6, 0,
     var twozero = "00";
     var fourzero = "0000";
     var astr = acc.toString(16); astr = twozero.concat(astr); astr = astr.slice(-2);
-    var xstr = x.toString(16);
-    var ystr = y.toString(16);
-    var pcstr = pc.toString(16);
-    return astr;
+    var xstr = x.toString(16); xstr = twozero.concat(xstr); xstr = xstr.slice(-2);
+    var ystr = y.toString(16); ystr = twozero.concat(ystr); ystr = ystr.slice(-2);
+    var pcstr = pc.toString(16); pcstr = fourzero.concat(pcstr); pcstr = pcstr.slice(-4);
+    var result = "";
+    result = result.concat("Acc:", astr, " X:", xstr," Y:", ystr, " PC:", pcstr);
+    return result;
   }
 
 
