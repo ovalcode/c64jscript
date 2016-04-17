@@ -10,13 +10,16 @@
     <p>This is JavaScript Test</p>
 <button onclick="step()">Step</button>
     <script language="JavaScript">
-      function step() {
-        alert("Hello");
-      }
 
       var mymem = new memory();
       var mycpu = new cpu(mymem);
-      mycpu.step();
+
+      function step() {
+        mycpu.step();
+        alert(mycpu.getDebugReg());
+      }
+
+      /*mycpu.step();
       mycpu.step();
       mycpu.step();
       mycpu.step();
@@ -35,7 +38,7 @@
 
       alert(mymem.readMem(0x7d1));
       alert(mymem.readMem(0x7d2));
-      alert(mymem.readMem(0x7d3));
+      alert(mymem.readMem(0x7d3));*/
 
     </script>
   </body>

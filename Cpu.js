@@ -132,6 +132,16 @@ const instructionCycles = [7, 6, 0, 0, 0, 3, 5, 0, 3, 2, 2, 0, 0, 4, 6, 0,
     }
   }
 
+  this.getDebugReg = function ()  {
+    var twozero = "00";
+    var fourzero = "0000";
+    var astr = acc.toString(16); astr = twozero.concat(astr); astr = astr.slice(-2);
+    var xstr = x.toString(16);
+    var ystr = y.toString(16);
+    var pcstr = pc.toString(16);
+    return astr;
+  }
+
 
   this.step = function () {
     var opcode = localMem.readMem(pc);
