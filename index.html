@@ -11,6 +11,8 @@
 <textarea id="registers" name="reg" rows="1" cols="60"></textarea>
 <br/>
 <textarea id="memory" name="mem" rows="15" cols="60"></textarea>
+<br/>
+<textarea id="diss" name="diss" rows="11" cols="60"></textarea>
 <button onclick="step()">Step</button>
     <script language="JavaScript">
 
@@ -22,6 +24,9 @@
         var t = document.getElementById("registers");
         t.value = mycpu.getDebugReg();
         
+        var ins = document.getElementById("diss");
+        ins.value = mycpu.getDecodedStr();
+
         var m = document.getElementById("memory");
         tempmemstr = ""
         for (i = 0; i < 160; i++) {

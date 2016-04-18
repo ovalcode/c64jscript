@@ -64,7 +64,8 @@ const instructionCycles = [7, 6, 0, 0, 0, 3, 5, 0, 3, 2, 2, 0, 0, 4, 6, 0,
 2, 6, 0, 0, 3, 3, 5, 0, 2, 2, 2, 0, 4, 4, 6, 0, 
 2, 5, 0, 0, 0, 4, 6, 0, 2, 4, 0, 0, 0, 4, 7, 0];
 
-"BRK", "ORA", "", "", "", "ORA", "ASL", "", "PHP", "ORA", "ASL", "", "", "ORA", "ASL", "", 
+const opCodeDesc = 
+["BRK", "ORA", "", "", "", "ORA", "ASL", "", "PHP", "ORA", "ASL", "", "", "ORA", "ASL", "", 
 "BPL", "ORA", "", "", "", "ORA", "ASL", "", "CLC", "ORA", "", "", "", "ORA", "ASL", "", 
 "JSR", "AND", "", "", "BIT", "AND", "ROL", "", "PHP", "AND", "ROL", "", "BIT", "AND", "ROL", "", 
 "BMI", "AND", "", "", "", "AND", "ROL", "", "SEC", "AND", "", "", "", "AND", "ROL", "", 
@@ -79,7 +80,7 @@ const instructionCycles = [7, 6, 0, 0, 0, 3, 5, 0, 3, 2, 2, 0, 0, 4, 6, 0,
 "CPY", "CMP", "", "", "CPY", "CMP", "DEC", "", "INY", "CMP", "DEC", "", "CPY", "CMP", "DEC", "", 
 "BNE", "CMP", "", "", "", "CMP", "DEC", "", "CLD", "CMP", "", "", "", "CMP", "DEC", "", 
 "CPX", "SBC", "", "", "CPX", "SBC", "INC", "", "INX", "SBC", "NOP", "", "CPX", "SBC", "INC", "", 
-"BEQ", "SBC", "", "", "", "SBC", "INC", "", "SED", "SBC", "", "", "", "SBC", "INC", "", 
+"BEQ", "SBC", "", "", "", "SBC", "INC", "", "SED", "SBC", "", "", "", "SBC", "INC", ""];
 
   var localMem = memory;
   var acc = 0;
@@ -145,6 +146,106 @@ const instructionCycles = [7, 6, 0, 0, 0, 3, 5, 0, 3, 2, 2, 0, 0, 4, 6, 0,
       case ADDRESS_MODE_ZERO_PAGE_Y_INDEXED:
         return (argbyte1 + y) & 0xff;
       break;
+    }
+  }
+
+  function getAsTwoDigit(number) {
+    result = "";
+    result = result.concat("00", number.toString(16));
+    result = result.slice(-2);
+    return result;
+  }
+
+  function getAsFourDigit(number) {
+    result = "";
+    result = result.concat("0000", number.toString(16));
+    result = result.slice(-4);
+    return result;
+  }
+
+  
+  this.getDecodedStr = function () {
+    opCode = localMem.readMem (pc);
+    mode = addressModes[opCode];
+    numArgs = instructionLengths[opCode] - 1;
+    if (numArgs > 0) {
+      argbyte1 = localMem.readMem (pc + 1);
+    }
+
+    if (numArgs > 1) {
+      argbyte2 = localMem.readMem (pc + 2);
+    }
+    
+    
+    address = 0;
+    addrStr = "";
+    var result = getAsFourDigit(pc);
+    result = result.concat(" ",opCodeDesc[opCode]);
+    result = result.concat(" ");
+    switch (mode) {
+      case ADDRESS_MODE_ACCUMULATOR: return 0; 
+      break;
+
+      case ADDRESS_MODE_ABSOLUTE: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+        result = result.concat("$",addrStr);
+        return result;
+      break;
+
+      case ADDRESS_MODE_ABSOLUTE_X_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+        result = result.concat("$",addrStr,",X");
+        return result;
+      break;
+
+      case ADDRESS_MODE_ABSOLUTE_Y_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+        result = result.concat("$",addrStr,",X");
+        return result;
+      break;
+
+      case ADDRESS_MODE_IMMEDIATE: addrStr = getAsTwoDigit(argbyte1);
+        result = result.concat("#$",addrStr);
+        return result; 
+      break;
+
+      case ADDRESS_MODE_IMPLIED:
+      break;
+
+      case ADDRESS_MODE_INDIRECT:
+        tempAddress = (argbyte2 * 256 + argbyte1);
+        return (localMem.readMem(tempAddress + 1) * 256 + localMem.readMem(tempAddress));
+      break;
+
+      case ADDRESS_MODE_X_INDEXED_INDIRECT:
+        addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
+        result = result.concat("($",addrStr,")");
+        return result;      break;
+
+      case ADDRESS_MODE_INDIRECT_Y_INDEXED:
+        addrStr = getAsTwoDigit(argbyte1);
+        result = result.concat("($",addrStr,"),Y");
+        return result;
+      break;
+
+      case ADDRESS_MODE_RELATIVE:
+      break;
+
+      case ADDRESS_MODE_ZERO_PAGE:
+        addrStr = getAsTwoDigit(argbyte1);
+        result = result.concat("$",addrStr,"");
+        return result;
+      break;
+
+      case ADDRESS_MODE_ZERO_PAGE_X_INDEXED:
+        addrStr = getAsTwoDigit(argbyte1);
+        result = result.concat("$",addrStr,",X");
+        return result;
+      break;
+
+      case ADDRESS_MODE_ZERO_PAGE_Y_INDEXED:
+        addrStr = getAsTwoDigit(argbyte1);
+        result = result.concat("$",addrStr,",Y");
+        return result;
+      break;
+
     }
   }
 
