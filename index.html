@@ -8,7 +8,9 @@
   <body>
     <h1>6502 Emulator From Scratch</h1>
     <p>This is JavaScript Test</p>
-<textarea id="registers" name="reg" rows="1" cols="50"></textarea>
+<textarea id="registers" name="reg" rows="1" cols="60"></textarea>
+<br/>
+<textarea id="memory" name="mem" rows="15" cols="60"></textarea>
 <button onclick="step()">Step</button>
     <script language="JavaScript">
 
@@ -19,6 +21,25 @@
         mycpu.step();
         var t = document.getElementById("registers");
         t.value = mycpu.getDebugReg();
+        
+        var m = document.getElementById("memory");
+        tempmemstr = ""
+        for (i = 0; i < 160; i++) {
+          if ((i % 16) == 0) {
+            labelstr = "";
+            labelstr = labelstr.concat("0000", i.toString(16));
+            labelstr = labelstr.slice(-4);
+
+            tempmemstr = tempmemstr.concat("\n",labelstr);
+          }
+          currentByte = mymem.readMem(i).toString(16);        
+          currentByte = currentByte.concat("00",currentByte);
+          currentByte = currentByte.slice(-2);
+          tempmemstr = tempmemstr.concat(" ", currentByte);
+        }
+        m.value = tempmemstr;
+        t.value = mycpu.getDebugReg();
+        
 
         //alert(mycpu.getDebugReg());
       }
