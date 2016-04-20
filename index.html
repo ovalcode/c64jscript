@@ -32,15 +32,14 @@
         for (i = 0; i < 160; i++) {
           if ((i % 16) == 0) {
             labelstr = "";
-            labelstr = labelstr.concat("0000", i.toString(16));
+            labelstr = labelstr + "0000" + i.toString(16);
             labelstr = labelstr.slice(-4);
 
-            tempmemstr = tempmemstr.concat("\n",labelstr);
+            tempmemstr = tempmemstr + "\n" + labelstr;
           }
-          currentByte = mymem.readMem(i).toString(16);        
-          currentByte = currentByte.concat("00",currentByte);
+          currentByte = "00" + mymem.readMem(i).toString(16);        
           currentByte = currentByte.slice(-2);
-          tempmemstr = tempmemstr.concat(" ", currentByte);
+          tempmemstr = tempmemstr + " " + currentByte;
         }
         m.value = tempmemstr;
         t.value = mycpu.getDebugReg();

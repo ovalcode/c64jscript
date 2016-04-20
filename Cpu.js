@@ -150,15 +150,13 @@ const opCodeDesc =
   }
 
   function getAsTwoDigit(number) {
-    result = "";
-    result = result.concat("00", number.toString(16));
+    result = "00" + number.toString(16);
     result = result.slice(-2);
     return result;
   }
 
   function getAsFourDigit(number) {
-    result = "";
-    result = result.concat("0000", number.toString(16));
+    result = "0000" + number.toString(16);
     result = result.slice(-4);
     return result;
   }
@@ -180,29 +178,28 @@ const opCodeDesc =
     address = 0;
     addrStr = "";
     var result = getAsFourDigit(pc);
-    result = result.concat(" ",opCodeDesc[opCode]);
-    result = result.concat(" ");
+    result = result + " " + opCodeDesc[opCode] + " ";
     switch (mode) {
       case ADDRESS_MODE_ACCUMULATOR: return 0; 
       break;
 
       case ADDRESS_MODE_ABSOLUTE: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
-        result = result.concat("$",addrStr);
+        result = result + "$" + addrStr;
         return result;
       break;
 
       case ADDRESS_MODE_ABSOLUTE_X_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
-        result = result.concat("$",addrStr,",X");
+        result = result + "$" + addrStr + ",X";
         return result;
       break;
 
       case ADDRESS_MODE_ABSOLUTE_Y_INDEXED: addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
-        result = result.concat("$",addrStr,",X");
+        result = result + "$" + addrStr + ",Y";
         return result;
       break;
 
       case ADDRESS_MODE_IMMEDIATE: addrStr = getAsTwoDigit(argbyte1);
-        result = result.concat("#$",addrStr);
+        result = result + "#$" + addrStr;
         return result; 
       break;
 
@@ -216,12 +213,12 @@ const opCodeDesc =
 
       case ADDRESS_MODE_X_INDEXED_INDIRECT:
         addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
-        result = result.concat("($",addrStr,")");
+        result = result + "($" + addrStr + ")";
         return result;      break;
 
       case ADDRESS_MODE_INDIRECT_Y_INDEXED:
         addrStr = getAsTwoDigit(argbyte1);
-        result = result.concat("($",addrStr,"),Y");
+        result = result + "($" + addrStr + "),Y";
         return result;
       break;
 
@@ -230,19 +227,19 @@ const opCodeDesc =
 
       case ADDRESS_MODE_ZERO_PAGE:
         addrStr = getAsTwoDigit(argbyte1);
-        result = result.concat("$",addrStr,"");
+        result = result + "$" + addrStr;
         return result;
       break;
 
       case ADDRESS_MODE_ZERO_PAGE_X_INDEXED:
         addrStr = getAsTwoDigit(argbyte1);
-        result = result.concat("$",addrStr,",X");
+        result = result + "$" + addrStr + ",X";
         return result;
       break;
 
       case ADDRESS_MODE_ZERO_PAGE_Y_INDEXED:
         addrStr = getAsTwoDigit(argbyte1);
-        result = result.concat("$",addrStr,",Y");
+        result = result + "$" + addrStr + ",Y";
         return result;
       break;
 
@@ -250,14 +247,12 @@ const opCodeDesc =
   }
 
   this.getDebugReg = function ()  {
-    var twozero = "00";
-    var fourzero = "0000";
-    var astr = acc.toString(16); astr = twozero.concat(astr); astr = astr.slice(-2);
-    var xstr = x.toString(16); xstr = twozero.concat(xstr); xstr = xstr.slice(-2);
-    var ystr = y.toString(16); ystr = twozero.concat(ystr); ystr = ystr.slice(-2);
-    var pcstr = pc.toString(16); pcstr = fourzero.concat(pcstr); pcstr = pcstr.slice(-4);
+    var astr = "00" + acc.toString(16); astr = astr.slice(-2);
+    var xstr = "00" + x.toString(16); xstr = xstr.slice(-2);
+    var ystr = "00" + y.toString(16); ystr = ystr.slice(-2);
+    var pcstr = "0000" + pc.toString(16); pcstr = pcstr.slice(-4);
     var result = "";
-    result = result.concat("Acc:", astr, " X:", xstr," Y:", ystr, " PC:", pcstr);
+    result = result + "Acc:" + astr + " X:" + xstr + " Y:" + ystr + " PC:" + pcstr;
     return result;
   }
 
