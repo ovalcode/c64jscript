@@ -212,8 +212,8 @@ const opCodeDesc =
       break;
 
       case ADDRESS_MODE_X_INDEXED_INDIRECT:
-        addrStr = getAsFourDigit(argbyte2 * 256 + argbyte1);
-        result = result + "($" + addrStr + ")";
+        addrStr = getAsTwoDigit(argbyte2 * 256 + argbyte1);
+        result = result + "($" + addrStr + ",X)";
         return result;      break;
 
       case ADDRESS_MODE_INDIRECT_Y_INDEXED:
