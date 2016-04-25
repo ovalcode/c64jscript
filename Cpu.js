@@ -89,6 +89,28 @@ const opCodeDesc =
   var pc = 0;
   var zeroflag = 0;
   var negativeflag = 0;
+  var carryflag =0;
+  var overflowflag =0; 
+
+    function ADC(operand1, operand2) {
+      temp = operand1 + operand2 + carryflag;
+      carryflag = ((temp & 0x100) == 0x100) ? 1 : 0;
+      overflowflag = (operand1^result) & (operand2^result) & 0x80;
+      temp = temp & 0xff;
+      return temp;
+    }
+
+   function SBC(operand1, operand2) {
+      operand2 = ~operand2 & 0xff;
+      operand2 = operans2 + (1 - carryflag);
+      temp = operand1 + operand2;
+      carryflag = ((temp & 0x100) == 0x100) ? 1 : 0;
+      overflowflag = (operand1^result) & (operand2^result) & 0x80;
+      temp = temp & 0xff;
+      return temp;
+    }
+
+
 
  function calculateEffevtiveAdd(mode, argbyte1, argbyte2) {
 
@@ -435,6 +457,182 @@ break;
       case 0x8C:
         localMem.writeMem(effectiveAdrress, y);
 break;
+
+/*ADC  Add Memory to Accumulator with Carry
+
+     A + M + C -> A, C                N Z C I D V
+                                      + + + - - +
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immidiate     ADC #oper     69    2     2
+     zeropage      ADC oper      65    2     3
+     zeropage,X    ADC oper,X    75    2     4
+     absolute      ADC oper      6D    3     4
+     absolute,X    ADC oper,X    7D    3     4*
+     absolute,Y    ADC oper,Y    79    3     4*
+     (indirect,X)  ADC (oper,X)  61    2     6
+     (indirect),Y  ADC (oper),Y  71    2     5* */
+
+      case 0x69:
+        acc = ADC (acc, arg1);
+        zeroflag = (acc == 0) ? 1 : 0;
+        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+      break;
+      case 0x65:
+      case 0x75:
+      case 0x6D:
+      case 0x7D:
+      case 0x79:
+      case 0x61:
+      case 0x71:
+        acc = ADC (acc, localMem.readMem(effectiveAdrress));
+        zeroflag = (acc == 0) ? 1 : 0;
+        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+      break;
+
+/*SBC  Subtract Memory from Accumulator with Borrow
+
+     A - M - C -> A                   N Z C I D V
+                                      + + + - - +
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immidiate     SBC #oper     E9    2     2
+     zeropage      SBC oper      E5    2     3
+     zeropage,X    SBC oper,X    F5    2     4
+     absolute      SBC oper      ED    3     4
+     absolute,X    SBC oper,X    FD    3     4*
+     absolute,Y    SBC oper,Y    F9    3     4*
+     (indirect,X)  SBC (oper,X)  E1    2     6
+     (indirect),Y  SBC (oper),Y  F1    2     5*  */
+
+      case 0xE9:
+        acc = SBC (acc, arg1);
+        zeroflag = (acc == 0) ? 1 : 0;
+        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+      break;
+      case 0xE5:
+      case 0xF5:
+      case 0xED:
+      case 0xFD:
+      case 0xF9:
+      case 0xE1:
+      case 0xF1:
+        acc = SBC (acc, localMem.readMem(effectiveAdrress));
+        zeroflag = (acc == 0) ? 1 : 0;
+        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+      break;
+
+/*INC  Increment Memory by One
+
+     M + 1 -> M                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      INC oper      E6    2     5
+     zeropage,X    INC oper,X    F6    2     6
+     absolut      INC oper      EE    3     6
+     absolute,X    INC oper,X    FE    3     7 */
+ 
+      case 0xE6:
+      case 0xF6:
+      case 0xEE:
+      case 0xFE:
+        var tempVal = localMem.readMem(effectiveAdrress);
+        tempVal++; tempVal = tempVal & 0xff;        
+        localMem.writeMem(effectiveAdrress, tempVal);
+        zeroflag = (tempVal == 0) ? 1 : 0;
+        negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+      break;
+
+/*INX  Increment Index X by One
+
+     X + 1 -> X                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       INX           E8    1     2*/
+ 
+      case 0xE8:
+
+        x++; x = x & 0xff;        
+        zeroflag = (x == 0) ? 1 : 0;
+        negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+      break;
+
+/*INY  Increment Index Y by One
+
+     Y + 1 -> Y                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       INY           C8    1     2*/
+ 
+      case 0xC8:
+
+        y++; y = y & 0xff;        
+        zeroflag = (y == 0) ? 1 : 0;
+        negativeflag = ((y & 0x80) != 0) ? 1 : 0;
+      break;
+
+/*DEC  Decrement Memory by One
+
+     M - 1 -> M                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      DEC oper      C6    2     5
+     zeropage,X    DEC oper,X    D6    2     6
+     absolute      DEC oper      CE    3     3
+     absolute,X    DEC oper,X    DE    3     7 */
+ 
+      case 0xC6:
+      case 0xD6:
+      case 0xCE:
+      case 0xDE:
+        var tempVal = localMem.readMem(effectiveAdrress);
+        tempVal--; tempVal = tempVal & 0xff;        
+        localMem.writeMem(effectiveAdrress, tempVal);
+        zeroflag = (tempVal == 0) ? 1 : 0;
+        negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+      break;
+
+/*DEX  Decrement Index X by One
+
+     X - 1 -> X                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       DEC           CA    1     2*/
+ 
+      case 0xCA:
+
+        x--; x = x & 0xff;        
+        zeroflag = (x == 0) ? 1 : 0;
+        negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+      break;
+
+/*DEY  Decrement Index Y by One
+
+     Y - 1 -> Y                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       DEC           88    1     2*/
+ 
+      case 0x88:
+
+        y--; y = y & 0xff;        
+        zeroflag = (y == 0) ? 1 : 0;
+        negativeflag = ((y & 0x80) != 0) ? 1 : 0;
+      break;
 
     }
   }
