@@ -275,6 +275,10 @@ const opCodeDesc =
     var pcstr = "0000" + pc.toString(16); pcstr = pcstr.slice(-4);
     var result = "";
     result = result + "Acc:" + astr + " X:" + xstr + " Y:" + ystr + " PC:" + pcstr;
+    result = result + " Z:" + zeroflag.toString();
+    result = result + " N:" + negativeflag.toString();
+    result = result + " C:" + carryflag.toString();
+    result = result + " V:" + overflowflag.toString();
     return result;
   }
 
