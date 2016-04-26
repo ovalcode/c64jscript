@@ -95,17 +95,17 @@ const opCodeDesc =
     function ADC(operand1, operand2) {
       temp = operand1 + operand2 + carryflag;
       carryflag = ((temp & 0x100) == 0x100) ? 1 : 0;
-      overflowflag = (operand1^result) & (operand2^result) & 0x80;
+      overflowflag = (((operand1^temp) & (operand2^temp) & 0x80) == 0x80) ? 1 : 0;
       temp = temp & 0xff;
       return temp;
     }
 
    function SBC(operand1, operand2) {
       operand2 = ~operand2 & 0xff;
-      operand2 = operans2 + (1 - carryflag);
+      operand2 = operand2 + (1 - carryflag);
       temp = operand1 + operand2;
       carryflag = ((temp & 0x100) == 0x100) ? 1 : 0;
-      overflowflag = (operand1^result) & (operand2^result) & 0x80;
+      overflowflag = (((operand1^temp) & (operand2^temp) & 0x80) == 0x80) ? 1 : 0;
       temp = temp & 0xff;
       return temp;
     }
@@ -226,6 +226,7 @@ const opCodeDesc =
       break;
 
       case ADDRESS_MODE_IMPLIED:
+        return result;
       break;
 
       case ADDRESS_MODE_INDIRECT:
