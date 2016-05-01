@@ -110,7 +110,15 @@ const opCodeDesc =
       return temp;
     }
 
-
+   function CMP(operand1, operand2) {
+      operand2 = ~operand2 & 0xff;
+      operand2 = operand2 + 1;
+      temp = operand1 + operand2;
+      carryflag = ((temp & 0x100) == 0x100) ? 1 : 0;
+      temp = temp & 0xff;
+      zeroflag = (temp == 0) ? 1 : 0;
+      negativeflag = ((temp & 0x80) != 0) ? 1 : 0;
+    }
 
  function calculateEffevtiveAdd(mode, argbyte1, argbyte2) {
 
@@ -155,6 +163,9 @@ const opCodeDesc =
       break;
 
       case ADDRESS_MODE_RELATIVE:
+        tempAddress = (argbyte1 > 127) ? (argbyte1 - 256) : argbyte1;
+        tempAddress = tempAddress + pc;
+        return tempAddress;
       break;
 
       case ADDRESS_MODE_ZERO_PAGE:
@@ -246,6 +257,9 @@ const opCodeDesc =
       break;
 
       case ADDRESS_MODE_RELATIVE:
+        addrStr = getAsFourDigit(((argbyte1 > 127) ? (argbyte1 - 256) : argbyte1) + pc + 2);
+        result = result + "$" + addrStr;
+        return result;
       break;
 
       case ADDRESS_MODE_ZERO_PAGE:
@@ -638,6 +652,213 @@ break;
         zeroflag = (y == 0) ? 1 : 0;
         negativeflag = ((y & 0x80) != 0) ? 1 : 0;
       break;
+
+/*CMP  Compare Memory with Accumulator
+
+     A - M                            N Z C I D V
+                                    + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immidiate     CMP #oper     C9    2     2
+     zeropage      CMP oper      C5    2     3
+     zeropage,X    CMP oper,X    D5    2     4
+     absolute      CMP oper      CD    3     4
+     absolute,X    CMP oper,X    DD    3     4*
+     absolute,Y    CMP oper,Y    D9    3     4*
+     (indirect,X)  CMP (oper,X)  C1    2     6
+     (indirect),Y  CMP (oper),Y  D1    2     5* */
+
+      case 0xc9:
+        CMP(acc, arg1);
+      break;
+      case 0xc5:
+      case 0xd5:
+      case 0xcd:
+      case 0xdD:
+      case 0xd9:
+      case 0xc1:
+      case 0xd1:
+        CMP(acc, localMem.readMem(effectiveAdrress));
+      break;
+
+/*CPX  Compare Memory and Index X
+
+     X - M                            N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immidiate     CPX #oper     E0    2     2
+     zeropage      CPX oper      E4    2     3
+     absolute      CPX oper      EC    3     4
+*/
+
+      case 0xe0:
+        CMP(x, arg1);
+      break;
+      case 0xe4:
+      case 0xec:
+        CMP(x, localMem.readMem(effectiveAdrress));
+      break;
+
+/*CPY  Compare Memory and Index Y
+
+     Y - M                            N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immidiate     CPY #oper     C0    2     2
+     zeropage      CPY oper      C4    2     3
+     absolute      CPY oper      CC    3     4*/
+
+      case 0xc0:
+        CMP(y, arg1);
+      break;
+      case 0xc4:
+      case 0xcc:
+        CMP(y, localMem.readMem(effectiveAdrress));
+      break;
+
+/*BCC  Branch on Carry Clear
+
+     branch on C = 0                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BCC oper      90    2     2** */
+
+      case 0x90:
+        if (carryflag == 0)
+          pc = effectiveAdrress;
+      break;
+
+
+/*BCS  Branch on Carry Set
+
+     branch on C = 1                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BCS oper      B0    2     2** */
+
+      case 0xB0:
+        if (carryflag == 1)
+          pc = effectiveAdrress;
+      break;
+
+
+/*BEQ  Branch on Result Zero
+
+     branch on Z = 1                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BEQ oper      F0    2     2** */
+
+      case 0xF0:
+        if (zeroflag == 1)
+          pc = effectiveAdrress;
+      break;
+
+
+
+/*BMI  Branch on Result Minus
+
+     branch on N = 1                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BMI oper      30    2     2** */
+
+      case 0x30:
+        if (negativeflag == 1)
+          pc = effectiveAdrress;
+      break;
+
+
+/*BNE  Branch on Result not Zero
+
+     branch on Z = 0                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BNE oper      D0    2     2**/
+
+      case 0xD0:
+        if (zeroflag == 0)
+          pc = effectiveAdrress;
+      break;
+
+
+
+/*BPL  Branch on Result Plus
+
+     branch on N = 0                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BPL oper      10    2     2** */
+
+      case 0x10:
+        if (negativeflag == 0)
+          pc = effectiveAdrress;
+      break;
+
+
+
+/*BVC  Branch on Overflow Clear
+
+     branch on V = 0                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BVC oper      50    2     2** */
+
+      case 0x50:
+        if (overflowflag == 0)
+          pc = effectiveAdrress;
+      break;
+
+/*BVS  Branch on Overflow Set
+
+     branch on V = 1                  N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     relative      BVC oper      70    2     2** */
+
+      case 0x70:
+        if (overflowflag == 1)
+          pc = effectiveAdrress;
+      break;
+
+/*JMP  Jump to New Location
+
+     (PC+1) -> PCL                    N Z C I D V
+     (PC+2) -> PCH                    - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     absolute      JMP oper      4C    3     3
+     indirect      JMP (oper)    6C    3     5 */
+
+      case 0x4C:
+
+      case 0x6C:
+          pc = effectiveAdrress;
+      break;
+
+
 
     }
   }
