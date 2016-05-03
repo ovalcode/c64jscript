@@ -87,6 +87,7 @@ const opCodeDesc =
   var x = 0;
   var y = 0;
   var pc = 0;
+  var sp = 0xff;
   var zeroflag = 0;
   var negativeflag = 0;
   var carryflag =0;
@@ -118,6 +119,32 @@ const opCodeDesc =
       temp = temp & 0xff;
       zeroflag = (temp == 0) ? 1 : 0;
       negativeflag = ((temp & 0x80) != 0) ? 1 : 0;
+    }
+
+    function Push(value) {
+      localMem.writeMem((sp | 0x100), value);
+      sp--;
+      sp = sp &amp; 0xff;
+    }
+
+    function Pop() {
+      sp++;
+      sp = sp &amp; 0xff;
+      var result = localMem.readMem(sp | 0x100);
+      return result;
+    }
+
+    function getStatusFlagsAsByte() {
+      var result = (negativeflag << 7) | (overflowflag << 6) | (zeroflag << 1) |
+        (carryflag);
+      return result;
+    }
+
+    function setStatusFlagsAsByte(value) {
+      negativeflag = (value >> 7) & 1;
+      overflowflag = (value >> 6) & 1;
+      zeroflag = (value >> 1) & 1;
+      carryflag = (value) & 1;
     }
 
  function calculateEffevtiveAdd(mode, argbyte1, argbyte2) {
@@ -858,8 +885,95 @@ break;
           pc = effectiveAdrress;
       break;
 
+/*PHA  Push Accumulator on Stack
+
+     push A                           N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PHA           48    1     3 */
+
+      case 0x48:
+        Push(acc);
+      break;
 
 
+/*PHP  Push Processor Status on Stack
+
+     push SR                          N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PHP           08    1     3 */
+
+      case 0x08:
+        Push(getStatusFlagsAsByte());
+      break;
+
+
+/*PLA  Pull Accumulator from Stack
+
+     pull A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PLA           68    1     4 */
+
+      case 0x68:
+        acc = Pop();
+        zeroflag = (acc == 0) ? 1 : 0;
+        negativeflag = ((acc &amp; 0x80) != 0) ? 1 : 0;
+      break;
+
+
+
+/*PLP  Pull Processor Status from Stack
+
+     pull SR                          N Z C I D V
+                                      from stack
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PHP           28    1     4 */
+
+      case 0x28:
+        setStatusFlagsAsByte(Pop());
+      break;
+
+/*JSR  Jump to New Location Saving Return Address
+
+     push (PC+2),                     N Z C I D V
+     (PC+1) -&gt; PCL                    - - - - - -
+     (PC+2) -&gt; PCH
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     absolute      JSR oper      20    3     6 */
+
+      case 0x20:
+        var tempVal = pc - 1;
+        Push((tempVal >> 8) & 0xff);
+        Push(tempVal & 0xff);
+        pc = effectiveAdrress;
+      break;
+
+/*RTS  Return from Subroutine
+
+     pull PC, PC+1 -&gt; PC              N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       RTS           60    1     6 */
+
+      case 0x60:
+        var tempVal = Pop();
+        tempVal = tempVal + Pop() * 256;
+        pc = tempVal + 1;
+      break;
     }
   }
 } 
