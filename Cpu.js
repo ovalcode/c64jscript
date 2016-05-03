@@ -315,8 +315,9 @@ const opCodeDesc =
     var xstr = "00" + x.toString(16); xstr = xstr.slice(-2);
     var ystr = "00" + y.toString(16); ystr = ystr.slice(-2);
     var pcstr = "0000" + pc.toString(16); pcstr = pcstr.slice(-4);
+    var spstr = "00" + sp.toString(16); spstr = spstr.slice(-2);
     var result = "";
-    result = result + "Acc:" + astr + " X:" + xstr + " Y:" + ystr + " PC:" + pcstr;
+    result = result + "Acc:" + astr + " X:" + xstr + " Y:" + ystr + "SP: " + spstr +" PC:" + pcstr;
     result = result + " Z:" + zeroflag.toString();
     result = result + " N:" + negativeflag.toString();
     result = result + " C:" + carryflag.toString();
