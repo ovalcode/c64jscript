@@ -124,12 +124,12 @@ const opCodeDesc =
     function Push(value) {
       localMem.writeMem((sp | 0x100), value);
       sp--;
-      sp = sp &amp; 0xff;
+      sp = sp & 0xff;
     }
 
     function Pop() {
       sp++;
-      sp = sp &amp; 0xff;
+      sp = sp & 0xff;
       var result = localMem.readMem(sp | 0x100);
       return result;
     }
@@ -925,7 +925,7 @@ break;
       case 0x68:
         acc = Pop();
         zeroflag = (acc == 0) ? 1 : 0;
-        negativeflag = ((acc &amp; 0x80) != 0) ? 1 : 0;
+        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
       break;
 
 
