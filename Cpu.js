@@ -1404,6 +1404,19 @@ break;
           localMem.writeMem(effectiveAdrress, tempVal);
       break;
 
+/*NOP  No Operation
+
+     ---                              N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       NOP           EA    1     2 */
+
+     case 0xEA:
+     break;
+
+
       default: alert("Op code "+opcode+" not implemented. PC = "+pc.toString(16));
     }
   }
