@@ -1416,6 +1416,41 @@ break;
      case 0xEA:
      break;
 
+/*BRK  Force Break
+
+     interrupt,                       N Z C I D V
+     push PC+2, push SR               - - - 1 - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       BRK           00    1     7 */
+       
+      case 0x00:
+        interruptflag = 1;
+        var tempVal = pc + 1;
+        Push(tempVal >> 8);
+        Push(tempVal & 0xff);
+        Push(getStatusFlagsAsByte());
+        tempVal = localMem.readMem(0xffff) * 256;
+        tempVal = tempVal + localMem.readMem(0xfffe);
+        pc = tempVal;
+      break;
+
+/*RTI  Return from Interrupt
+
+     pull SR, pull PC                 N Z C I D V
+                                      from stack
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       RTI           40    1     6 */
+      
+      case 0x40: 
+        setStatusFlagsAsByte(Pop());
+        var tempVal = Pop();
+        tempVal = (Pop() << 8) + tempVal;
+        pc = tempVal;
+      break;
 
       default: alert("Op code "+opcode+" not implemented. PC = "+pc.toString(16));
     }
