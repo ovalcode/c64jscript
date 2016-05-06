@@ -354,7 +354,7 @@ const opCodeDesc =
 
      addressing    assembler    opc  bytes  cyles
      --------------------------------------------
-     immidiate     LDA #oper     A9    2     2
+     immediate     LDA #oper     A9    2     2
      zeropage      LDA oper      A5    2     3
      zeropage,X    LDA oper,X    B5    2     4
      absolute      LDA oper      AD    3     4
@@ -387,7 +387,7 @@ const opCodeDesc =
 
      addressing    assembler    opc  bytes  cyles
      --------------------------------------------
-     immidiate     LDX #oper     A2    2     2
+     immediate     LDX #oper     A2    2     2
      zeropage      LDX oper      A6    2     3
      zeropage,Y    LDX oper,Y    B6    2     4
      absolute      LDX oper      AE    3     4
@@ -419,7 +419,7 @@ break;
 
      addressing    assembler    opc  bytes  cyles
      --------------------------------------------
-     immidiate     LDY #oper     A0    2     2
+     immediate     LDY #oper     A0    2     2
      zeropage      LDY oper      A4    2     3
      zeropage,X    LDY oper,X    B4    2     4
      absolute      LDY oper      AC    3     4
@@ -512,7 +512,7 @@ break;
 
      addressing    assembler    opc  bytes  cyles
      --------------------------------------------
-     immidiate     ADC #oper     69    2     2
+     immediate     ADC #oper     69    2     2
      zeropage      ADC oper      65    2     3
      zeropage,X    ADC oper,X    75    2     4
      absolute      ADC oper      6D    3     4
@@ -545,7 +545,7 @@ break;
 
      addressing    assembler    opc  bytes  cyles
      --------------------------------------------
-     immidiate     SBC #oper     E9    2     2
+     immediate     SBC #oper     E9    2     2
      zeropage      SBC oper      E5    2     3
      zeropage,X    SBC oper,X    F5    2     4
      absolute      SBC oper      ED    3     4
@@ -688,7 +688,7 @@ break;
 
      addressing    assembler    opc  bytes  cyles
      --------------------------------------------
-     immidiate     CMP #oper     C9    2     2
+     immediate     CMP #oper     C9    2     2
      zeropage      CMP oper      C5    2     3
      zeropage,X    CMP oper,X    D5    2     4
      absolute      CMP oper      CD    3     4
@@ -717,7 +717,7 @@ break;
 
      addressing    assembler    opc  bytes  cyles
      --------------------------------------------
-     immidiate     CPX #oper     E0    2     2
+     immediate     CPX #oper     E0    2     2
      zeropage      CPX oper      E4    2     3
      absolute      CPX oper      EC    3     4
 */
@@ -737,7 +737,7 @@ break;
 
      addressing    assembler    opc  bytes  cyles
      --------------------------------------------
-     immidiate     CPY #oper     C0    2     2
+     immediate     CPY #oper     C0    2     2
      zeropage      CPY oper      C4    2     3
      absolute      CPY oper      CC    3     4*/
 
@@ -975,6 +975,405 @@ break;
         tempVal = tempVal + Pop() * 256;
         pc = tempVal + 1;
       break;
+
+/*AND  AND Memory with Accumulator
+
+     A AND M -> A                     N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     AND #oper     29    2     2
+     zeropage      AND oper      25    2     3
+     zeropage,X    AND oper,X    35    2     4
+     absolute      AND oper      2D    3     4
+     absolute,X    AND oper,X    3D    3     4*
+     absolute,Y    AND oper,Y    39    3     4*
+     (indirect,X)  AND (oper,X)  21    2     6
+     (indirect),Y  AND (oper),Y  31    2     5* */
+
+
+      case 0x29:  acc = acc & arg1;
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        break;
+      case 0x25:
+      case 0x35:
+      case 0x2D:
+      case 0x3D:
+      case 0x39:
+      case 0x21:
+      case 0x31: acc = acc & localMem.readMem(effectiveAdrress);
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        break;
+
+
+
+/*EOR  Exclusive-OR Memory with Accumulator
+
+     A EOR M -> A                     N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     EOR #oper     49    2     2
+     zeropage      EOR oper      45    2     3
+     zeropage,X    EOR oper,X    55    2     4
+     absolute      EOR oper      4D    3     4
+     absolute,X    EOR oper,X    5D    3     4*
+     absolute,Y    EOR oper,Y    59    3     4*
+     (indirect,X)  EOR (oper,X)  41    2     6
+     (indirect),Y  EOR (oper),Y  51    2     5* */
+
+      case 0x49:  acc = acc ^ arg1;
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        break;
+      case 0x45:
+      case 0x55:
+      case 0x4D:
+      case 0x5D:
+      case 0x59:
+      case 0x41:
+      case 0x51: acc = acc ^ localMem.readMem(effectiveAdrress);
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        break;
+
+
+/*ORA  OR Memory with Accumulator
+
+     A OR M -> A                      N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     ORA #oper     09    2     2
+     zeropage      ORA oper      05    2     3
+     zeropage,X    ORA oper,X    15    2     4
+     absolute      ORA oper      0D    3     4
+     absolute,X    ORA oper,X    1D    3     4*
+     absolute,Y    ORA oper,Y    19    3     4*
+     (indirect,X)  ORA (oper,X)  01    2     6
+     (indirect),Y  ORA (oper),Y  11    2     5* */
+
+      case 0x09:  acc = acc | arg1;
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        break;
+      case 0x05:
+      case 0x15:
+      case 0x0D:
+      case 0x1D:
+      case 0x19:
+      case 0x01:
+      case 0x11: acc = acc | localMem.readMem(effectiveAdrress);
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        break;
+
+/*CLC  Clear Carry Flag
+
+     0 -> C                           N Z C I D V
+                                      - - 0 - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLC           18    1     2 */
+
+      case 0x18: 
+          carryflag = 0;
+        break;
+
+
+
+/*CLV  Clear Overflow Flag
+
+     0 -> V                           N Z C I D V
+                                      - - - - - 0
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLV           B8    1     2 */
+
+      case 0xB8: 
+          overflowflag = 0;
+        break;
+
+
+/*SEC  Set Carry Flag
+
+     1 -> C                           N Z C I D V
+                                      - - 1 - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       SEC           38    1     2 */
+
+      case 0x38: 
+          carryflag = 1;
+        break;
+
+/*TAX  Transfer Accumulator to Index X
+
+     A -> X                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TAX           AA    1     2 */
+
+      case 0xAA: 
+          x = acc;
+          zeroflag = (x == 0) ? 1 : 0;
+          negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+        break;
+
+
+/*TAY  Transfer Accumulator to Index Y
+
+     A -> Y                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TAY           A8    1     2 */
+
+      case 0xA8: 
+          y = acc;
+          zeroflag = (y == 0) ? 1 : 0;
+          negativeflag = ((y & 0x80) != 0) ? 1 : 0;
+        break;
+
+
+/*TSX  Transfer Stack Pointer to Index X
+
+     SP -> X                          N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TSX           BA    1     2 */
+
+      case 0xBA: 
+          x = sp;
+          zeroflag = (x == 0) ? 1 : 0;
+          negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+        break;
+
+
+
+/*TXA  Transfer Index X to Accumulator
+
+     X -> A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TXA           8A    1     2 */
+
+      case 0x8A: 
+          acc = x;
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        break;
+
+
+/*TXS  Transfer Index X to Stack Register
+
+     X -> SP                          N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TXS           9A    1     2 */
+
+      case 0x9A: 
+          sp = x;
+          zeroflag = (sp == 0) ? 1 : 0;
+          negativeflag = ((sp & 0x80) != 0) ? 1 : 0;
+        break;
+
+
+
+/*TYA  Transfer Index Y to Accumulator
+
+     Y -> A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TYA           98    1     2 */
+
+      case 0x98: 
+          acc = y;
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        break;
+
+/*BIT  Test Bits in Memory with Accumulator
+
+     bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
+     the zeroflag is set to the result of operand AND accumulator.
+
+     A AND M, M7 -> N, M6 -> V        N Z C I D V
+                                     M7 + - - - M6
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      BIT oper      24    2     3
+     absolute      BIT oper      2C    3     4 */
+
+      case 0x24: 
+      case 0x2C: 
+          var tempVal = localMem.readMem(effectiveAdrress);
+          negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+          overflowflag = ((tempVal & 0x40) != 0) ? 1 : 0;
+          zeroflag = ((acc & tempVal) == 0) ? 1 : 0;
+        break;
+
+
+/*ASL  Shift Left One Bit (Memory or Accumulator)
+
+     C <- [76543210] <- 0             N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   ASL A         0A    1     2
+     zeropage      ASL oper      06    2     5
+     zeropage,X    ASL oper,X    16    2     6
+     absolute      ASL oper      0E    3     6
+     absolute,X    ASL oper,X    1E    3     7 */
+
+      case 0x0A: 
+          acc = acc << 1;
+          carryflag = ((acc & 0x100) != 0) ? 1 : 0;
+          acc = acc & 0xff;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+          zeroflag = (acc == 0) ? 1 : 0;
+         break;
+      case 0x06: 
+      case 0x16: 
+      case 0x0E: 
+      case 0x1E: 
+          var tempVal = localMem.readMem(effectiveAdrress);
+          tempVal = tempVal << 1;
+          carryflag = ((tempVal & 0x100) != 0) ? 1 : 0;
+          tempVal = tempVal & 0xff;
+          negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+          zeroflag = (tempVal == 0) ? 1 : 0;
+          localMem.writeMem(effectiveAdrress, tempVal);
+        break;
+
+
+
+/*LSR  Shift One Bit Right (Memory or Accumulator)
+
+     0 -> [76543210] -> C             N Z C I D V
+                                      - + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   LSR A         4A    1     2
+     zeropage      LSR oper      46    2     5
+     zeropage,X    LSR oper,X    56    2     6
+     absolute      LSR oper      4E    3     6
+     absolute,X    LSR oper,X    5E    3     7 */
+
+      case 0x4A: 
+          carryflag = ((acc & 0x1) != 0) ? 1 : 0;
+          acc = acc >> 1;
+          acc = acc & 0xff;
+          zeroflag = (acc == 0) ? 1 : 0;
+        break;
+      case 0x46: 
+      case 0x56: 
+      case 0x4E: 
+      case 0x5E: 
+          var tempVal = localMem.readMem(effectiveAdrress);
+          carryflag = ((tempVal & 0x1) != 0) ? 1 : 0;
+          tempVal = tempVal >> 1;
+          tempVal = tempVal & 0xff;
+          zeroflag = (tempVal == 0) ? 1 : 0;
+          localMem.writeMem(effectiveAdrress, tempVal);
+        break;
+
+
+/*ROL  Rotate One Bit Left (Memory or Accumulator)
+
+     C <- [76543210] <- C             N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   ROL A         2A    1     2
+     zeropage      ROL oper      26    2     5
+     zeropage,X    ROL oper,X    36    2     6
+     absolute      ROL oper      2E    3     6
+     absolute,X    ROL oper,X    3E    3     7 */
+
+
+      case 0x2A: 
+          acc = acc << 1;
+          acc = acc | carryflag;
+          carryflag = ((acc & 0x100) != 0) ? 1 : 0;
+          acc = acc & 0xff;
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+      break;
+
+      case 0x26: 
+      case 0x36: 
+      case 0x2E: 
+      case 0x3E: 
+          var tempVal = localMem.readMem(effectiveAdrress);
+          tempVal = tempVal << 1;
+          tempVal = tempVal | carryflag;
+          carryflag = ((tempVal & 0x100) != 0) ? 1 : 0;
+          tempVal = tempVal & 0xff;
+          zeroflag = (tempVal == 0) ? 1 : 0;
+          negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+          localMem.writeMem(effectiveAdrress,tempVal);
+      break;
+
+/*ROR  Rotate One Bit Right (Memory or Accumulator)
+
+     C -> [76543210] -> C             N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   ROR A         6A    1     2
+     zeropage      ROR oper      66    2     5
+     zeropage,X    ROR oper,X    76    2     6
+     absolute      ROR oper      6E    3     6
+     absolute,X    ROR oper,X    7E    3     7 */
+
+      case 0x6A: 
+          acc = acc | (carryflag << 8);
+          carryflag = ((acc & 0x1) != 0) ? 1 : 0;
+          acc = acc >> 1;
+          acc = acc & 0xff;
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+      break;
+      case 0x66: 
+      case 0x76: 
+      case 0x6E: 
+      case 0x7E: 
+          var tempVal = localMem.readMem(effectiveAdrress);
+          tempVal = tempVal | (carryflag << 8);
+          carryflag = ((tempVal & 0x1) != 0) ? 1 : 0;
+          tempVal = tempVal >> 1;
+          tempVal = tempVal & 0xff;
+          zeroflag = (tempVal == 0) ? 1 : 0;
+          negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+          localMem.writeMem(effectiveAdrress, tempVal);
+      break;
+
+      default: alert("Op code "+opcode+" not implemented. PC = "+pc.toString(16));
     }
   }
 } 
