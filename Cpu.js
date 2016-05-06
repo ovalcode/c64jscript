@@ -136,7 +136,7 @@ const opCodeDesc =
     }
 
     function getStatusFlagsAsByte() {
-      var result = (negativeflag << 7) | (overflowflag << 6) | (zeroflag << 1) |
+      var result = (negativeflag << 7) | (overflowflag << 6) | (decimalflag << 3) | (zeroflag << 1) |
         (carryflag);
       return result;
     }
@@ -144,6 +144,7 @@ const opCodeDesc =
     function setStatusFlagsAsByte(value) {
       negativeflag = (value >> 7) & 1;
       overflowflag = (value >> 6) & 1;
+      decimalflag = (value >> 3) & 1;
       zeroflag = (value >> 1) & 1;
       carryflag = (value) & 1;
     }
