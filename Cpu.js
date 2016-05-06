@@ -86,12 +86,13 @@ const opCodeDesc =
   var acc = 0;
   var x = 0;
   var y = 0;
-  var pc = 0;
+  var pc = 0x400;
   var sp = 0xff;
   var zeroflag = 0;
   var negativeflag = 0;
   var carryflag =0;
   var overflowflag =0; 
+  var decimalflag = 0;
 
     function ADC(operand1, operand2) {
       temp = operand1 + operand2 + carryflag;
@@ -1101,6 +1102,18 @@ break;
           overflowflag = 0;
         break;
 
+/*CLD  Clear Decimal Mode
+
+     0 -> D                           N Z C I D V
+                                      - - - - 0 -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLD           D8    1     2 */
+
+       case 0xD8:
+         decimalflag = 0;
+       break;
 
 /*SEC  Set Carry Flag
 
@@ -1114,6 +1127,20 @@ break;
       case 0x38: 
           carryflag = 1;
         break;
+
+/*SED  Set Decimal Flag
+
+     1 -> D                           N Z C I D V
+                                      - - - - 1 - 
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       SED           F8    1     2  */
+
+      case 0xF8:
+        decimalflag = 1;
+      break;
+
 
 /*TAX  Transfer Accumulator to Index X
 
