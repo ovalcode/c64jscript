@@ -11,6 +11,9 @@
 <textarea id="registers" name="reg" rows="1" cols="60"></textarea>
 <br/>
 <textarea id="memory" name="mem" rows="15" cols="60"></textarea>
+From Location:
+<input type="text" id="frommem">
+<button onclick="showMem()">Refresh Dump</button>
 <br/>
 <textarea id="diss" name="diss" rows="11" cols="60"></textarea>
 <button onclick="step()">Step</button>
@@ -19,17 +22,12 @@
       var mymem = new memory();
       var mycpu = new cpu(mymem);
 
-      function step() {
-        mycpu.step();
-        var t = document.getElementById("registers");
-        t.value = mycpu.getDebugReg();
-        
-        var ins = document.getElementById("diss");
-        ins.value = mycpu.getDecodedStr();
-
+      function showMem() {
         var m = document.getElementById("memory");
+        var location = document.getElementById("frommem");
+        locationInt = parseInt(location.value, 16);
         tempmemstr = ""
-        for (i = 0; i < 160; i++) {
+        for (i = locationInt; i < (160 + locationInt); i++) {
           if ((i % 16) == 0) {
             labelstr = "";
             labelstr = labelstr + "0000" + i.toString(16);
@@ -42,6 +40,17 @@
           tempmemstr = tempmemstr + " " + currentByte;
         }
         m.value = tempmemstr;
+
+      }
+
+      function step() {
+        mycpu.step();
+        var t = document.getElementById("registers");
+        t.value = mycpu.getDebugReg();
+        
+        var ins = document.getElementById("diss");
+        ins.value = mycpu.getDecodedStr();
+        showMem();
         t.value = mycpu.getDebugReg();
         
 
