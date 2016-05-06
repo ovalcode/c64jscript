@@ -93,6 +93,8 @@ const opCodeDesc =
   var carryflag =0;
   var overflowflag =0; 
   var decimalflag = 0;
+  var interruptflag = 1;
+  var breakflag = 1;
 
     function ADC(operand1, operand2) {
       temp = operand1 + operand2 + carryflag;
@@ -136,7 +138,7 @@ const opCodeDesc =
     }
 
     function getStatusFlagsAsByte() {
-      var result = (negativeflag << 7) | (overflowflag << 6) | (decimalflag << 3) | (zeroflag << 1) |
+      var result = (negativeflag << 7) | (overflowflag << 6) | (1 << 5) | (breakflag << 4) | (decimalflag << 3) | (interruptflag << 2) | (zeroflag << 1) |
         (carryflag);
       return result;
     }
@@ -145,6 +147,7 @@ const opCodeDesc =
       negativeflag = (value >> 7) & 1;
       overflowflag = (value >> 6) & 1;
       decimalflag = (value >> 3) & 1;
+      interruptflag = (value >> 2) & 1;
       zeroflag = (value >> 1) & 1;
       carryflag = (value) & 1;
     }
