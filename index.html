@@ -16,11 +16,14 @@ From Location:
 <button onclick="showMem()">Refresh Dump</button>
 <br/>
 <textarea id="diss" name="diss" rows="11" cols="60"></textarea>
-<button onclick="step()">Step</button>
+<button id="btnStep" onclick="step()">Step</button>
+<button id="btnRun" onclick="startEm()">Run</button>
+<button id="btnStop" onclick="stopEm()">Stop</button>
     <script language="JavaScript">
 
       var mymem = new memory();
       var mycpu = new cpu(mymem);
+      var mytimer;
 
       function showMem() {
         var m = document.getElementById("memory");
@@ -42,9 +45,30 @@ From Location:
         m.value = tempmemstr;
 
       }
+      function runBatch() {
+        for (i=0; i < 100;  i++) {
+          mycpu.step();
+        }
+      }
+      
+      function startEm() {
+        document.getElementById("btnStep").disabled = true;
+        document.getElementById("btnRun").disabled = true;
+        document.getElementById("btnStop").disabled = false;
+        myTimer = setInterval(runBatch, 200);
+      }
 
-      function step() {
-        mycpu.step();
+      function stopEm() {
+        clearInterval();
+        displayEmuState();
+
+        document.getElementById("btnStep").disabled = false;
+        document.getElementById("btnRun").disabled = false;
+        document.getElementById("btnStop").disabled = true;
+
+      }
+ 
+      function displayEmuState() {
         var t = document.getElementById("registers");
         t.value = mycpu.getDebugReg();
         
@@ -52,7 +76,12 @@ From Location:
         ins.value = mycpu.getDecodedStr();
         showMem();
         t.value = mycpu.getDebugReg();
-        
+
+      }
+
+      function step() {
+        mycpu.step();
+        displayEmuState();
 
         //alert(mycpu.getDebugReg());
       }
