@@ -100,6 +100,23 @@ const opCodeDesc =
       return pc;
     }
 
+    function adcDecimal(operand) { 
+    	        var l = 0; 
+                var h = 0;
+                var result = 0;
+    	        l = (acc & 0x0f) + (operand & 0x0f) + carryflag;
+    	        if ((l & 0xff) > 9) l += 6; 
+    	        h = (acc >> 4) + (operand >> 4) + (l > 15 ? 1 : 0);
+    	        if ((h & 0xff) > 9) h += 6; 
+    	        result = (l & 0x0f) | (h << 4);
+    	        result &= 0xff; 
+    	        carryflag = (h > 15) ? 1 : 0;
+    	        zeroflag = (result == 0) ? 1 : 0;
+                negativeflag = 0;
+                overflowflag = 0;
+    	        return result;     	 
+    	    } 
+
     function ADC(operand1, operand2) {
       temp = operand1 + operand2 + carryflag;
       carryflag = ((temp & 0x100) == 0x100) ? 1 : 0;
@@ -107,6 +124,24 @@ const opCodeDesc =
       temp = temp & 0xff;
       return temp;
     }
+
+    function sbcDecimal(operand) {
+        var l = 0;
+        var h = 0; 
+        var result = 0;
+        l = (acc & 0x0f) - (operand & 0x0f) - (1 - carryflag);
+        if ((l & 0x10) != 0) l -= 6;
+        h = (acc >> 4) - (operand >> 4) - ((l & 0x10) != 0 ? 1 : 0);
+        if ((h & 0x10) != 0) h -= 6;
+        result = (l & 0x0f) | (h << 4);
+        carryflag = ((h & 0xff) < 15) ? 1 : 0;
+    	        zeroflag = (result == 0) ? 1 : 0;
+                negativeflag = 0;
+                overflowflag = 0;
+        return (result & 0xff);
+    }
+
+
 
    function SBC(operand1, operand2) {
       operand2 = ~operand2 & 0xff;
@@ -532,9 +567,13 @@ break;
      (indirect),Y  ADC (oper),Y  71    2     5* */
 
       case 0x69:
-        acc = ADC (acc, arg1);
-        zeroflag = (acc == 0) ? 1 : 0;
-        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        if (decimalflag == 0) {
+          acc = ADC (acc, arg1);
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        } else {
+          acc = adcDecimal(arg1);
+        }
       break;
       case 0x65:
       case 0x75:
@@ -543,9 +582,13 @@ break;
       case 0x79:
       case 0x61:
       case 0x71:
-        acc = ADC (acc, localMem.readMem(effectiveAdrress));
-        zeroflag = (acc == 0) ? 1 : 0;
-        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        if (decimalflag == 0) {
+          acc = ADC (acc, localMem.readMem(effectiveAdrress));
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        } else {
+          acc = adcDecimal(localMem.readMem(effectiveAdrress));
+        }
       break;
 
 /*SBC  Subtract Memory from Accumulator with Borrow
@@ -565,9 +608,13 @@ break;
      (indirect),Y  SBC (oper),Y  F1    2     5*  */
 
       case 0xE9:
-        acc = SBC (acc, arg1);
-        zeroflag = (acc == 0) ? 1 : 0;
-        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        if (decimalflag == 0) {
+          acc = SBC (acc, arg1);
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        } else {
+          acc = sbcDecimal(arg1);
+        }
       break;
       case 0xE5:
       case 0xF5:
@@ -576,9 +623,13 @@ break;
       case 0xF9:
       case 0xE1:
       case 0xF1:
-        acc = SBC (acc, localMem.readMem(effectiveAdrress));
-        zeroflag = (acc == 0) ? 1 : 0;
-        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        if (decimalflag == 0) {
+          acc = SBC (acc, localMem.readMem(effectiveAdrress));
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        } else {
+          acc = sbcDecimal(localMem.readMem(effectiveAdrress));
+        }
       break;
 
 /*INC  Increment Memory by One
