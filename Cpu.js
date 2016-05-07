@@ -1426,11 +1426,11 @@ break;
      implied       BRK           00    1     7 */
        
       case 0x00:
-        interruptflag = 1;
         var tempVal = pc + 1;
         Push(tempVal >> 8);
         Push(tempVal & 0xff);
         Push(getStatusFlagsAsByte());
+        interruptflag = 1;
         tempVal = localMem.readMem(0xffff) * 256;
         tempVal = tempVal + localMem.readMem(0xfffe);
         pc = tempVal;
