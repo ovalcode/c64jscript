@@ -327,6 +327,7 @@ const opCodeDesc =
     result = result + " N:" + negativeflag.toString();
     result = result + " C:" + carryflag.toString();
     result = result + " V:" + overflowflag.toString();
+    result = result + " D:" + decimalflag.toString();
     return result;
   }
 
