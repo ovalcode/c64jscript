@@ -1222,8 +1222,8 @@ break;
 
       case 0x9A: 
           sp = x;
-          zeroflag = (sp == 0) ? 1 : 0;
-          negativeflag = ((sp & 0x80) != 0) ? 1 : 0;
+          //zeroflag = (sp == 0) ? 1 : 0;
+          //negativeflag = ((sp & 0x80) != 0) ? 1 : 0;
         break;
 
 
