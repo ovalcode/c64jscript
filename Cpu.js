@@ -110,8 +110,8 @@ const opCodeDesc =
 
    function SBC(operand1, operand2) {
       operand2 = ~operand2 & 0xff;
-      operand2 = operand2 + (1 - carryflag);
-      temp = operand1 + operand2;
+      //operand2 = operand2 + (1 - carryflag);
+      temp = operand1 + operand2 + carryflag;
       carryflag = ((temp & 0x100) == 0x100) ? 1 : 0;
       overflowflag = (((operand1^temp) & (operand2^temp) & 0x80) == 0x80) ? 1 : 0;
       temp = temp & 0xff;
