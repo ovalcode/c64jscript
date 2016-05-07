@@ -67,7 +67,7 @@ const instructionCycles = [7, 6, 0, 0, 0, 3, 5, 0, 3, 2, 2, 0, 0, 4, 6, 0,
 const opCodeDesc = 
 ["BRK", "ORA", "", "", "", "ORA", "ASL", "", "PHP", "ORA", "ASL", "", "", "ORA", "ASL", "", 
 "BPL", "ORA", "", "", "", "ORA", "ASL", "", "CLC", "ORA", "", "", "", "ORA", "ASL", "", 
-"JSR", "AND", "", "", "BIT", "AND", "ROL", "", "PHP", "AND", "ROL", "", "BIT", "AND", "ROL", "", 
+"JSR", "AND", "", "", "BIT", "AND", "ROL", "", "PLP", "AND", "ROL", "", "BIT", "AND", "ROL", "", 
 "BMI", "AND", "", "", "", "AND", "ROL", "", "SEC", "AND", "", "", "", "AND", "ROL", "", 
 "RTI", "EOR", "", "", "", "EOR", "LSR", "", "PHA", "EOR", "LSR", "", "JMP", "EOR", "LSR", "", 
 "BVC", "EOR", "", "", "", "EOR", "LSR", "", "CLI", "EOR", "", "", "", "EOR", "LSR", "", 
@@ -95,6 +95,10 @@ const opCodeDesc =
   var decimalflag = 0;
   var interruptflag = 1;
   var breakflag = 1;
+
+    this.getPc = function () {
+      return pc;
+    }
 
     function ADC(operand1, operand2) {
       temp = operand1 + operand2 + carryflag;
@@ -944,7 +948,7 @@ break;
 
      addressing    assembler    opc  bytes  cyles
      --------------------------------------------
-     implied       PHP           28    1     4 */
+     implied       PLP           28    1     4 */
 
       case 0x28:
         setStatusFlagsAsByte(Pop());

@@ -19,11 +19,15 @@ From Location:
 <button id="btnStep" onclick="step()">Step</button>
 <button id="btnRun" onclick="startEm()">Run</button>
 <button id="btnStop" onclick="stopEm()">Stop</button>
+<br/>
+Break at: <input type="text" id="breakpoint">
     <script language="JavaScript">
 
       var mymem = new memory();
       var mycpu = new cpu(mymem);
       var mytimer;
+      var running = false;
+      var breakpoint = 0;
 
       function showMem() {
         var m = document.getElementById("memory");
@@ -46,8 +50,14 @@ From Location:
 
       }
       function runBatch() {
-        for (i=0; i < 100;  i++) {
+        if (!running)
+          return;
+        for (i=0; i < 100;  i++) { 
           mycpu.step();
+          if (mycpu.getPc() == breakpoint) {
+            stopEm();
+            break;
+          }
         }
       }
       
@@ -55,11 +65,15 @@ From Location:
         document.getElementById("btnStep").disabled = true;
         document.getElementById("btnRun").disabled = true;
         document.getElementById("btnStop").disabled = false;
+        var myBreak = document.getElementById("breakpoint");
+        breakpoint = parseInt(myBreak.value, 16);
+        running = true;
         myTimer = setInterval(runBatch, 200);
       }
 
       function stopEm() {
-        clearInterval();
+        running = false;
+        clearInterval(mytimer);
         displayEmuState();
 
         document.getElementById("btnStep").disabled = false;
