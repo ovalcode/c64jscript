@@ -1318,6 +1318,7 @@ break;
           acc = acc >> 1;
           acc = acc & 0xff;
           zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = 0;
         break;
       case 0x46: 
       case 0x56: 
@@ -1329,6 +1330,7 @@ break;
           tempVal = tempVal & 0xff;
           zeroflag = (tempVal == 0) ? 1 : 0;
           localMem.writeMem(effectiveAdrress, tempVal);
+          negativeflag = 0;
         break;
 
 
