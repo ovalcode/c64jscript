@@ -1452,6 +1452,32 @@ break;
         pc = tempVal;
       break;
 
+/*CLI  Clear Interrupt Disable Bit
+
+     0 -> I                           N Z C I D V
+                                      - - - 0 - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLI           58    1     2 */
+
+      case 0x58: 
+        interruptflag = 0;        
+      break;
+
+/*SEI  Set Interrupt Disable Status
+
+     1 -> I                           N Z C I D V
+                                      - - - 1 - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       SEI           78    1     2 */
+
+      case 0x78: 
+        interruptflag = 1;                
+      break;
+
       default: alert("Op code "+opcode+" not implemented. PC = "+pc.toString(16));
     }
   }
