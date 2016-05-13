@@ -4,10 +4,15 @@
     <title>6502 Emulator From Scratch</title>
     <script src="Memory.js"></script>
     <script src="Cpu.js"></script>
+    <script src="Video.js"></script>
   </head>
   <body>
     <h1>6502 Emulator From Scratch</h1>
     <p>This is JavaScript Test</p>
+<canvas id="screen" width="320" height="200">
+
+</canvas>
+<br/>
 <textarea id="registers" name="reg" rows="1" cols="60"></textarea>
 <br/>
 <textarea id="memory" name="mem" rows="15" cols="60"></textarea>
@@ -25,6 +30,7 @@ Break at: <input type="text" id="breakpoint">
 
       var mymem = new memory(postInit);
       var mycpu = new cpu(mymem);
+      var myvideo = new video(document.getElementById("screen"));
       var mytimer;
       var running = false;
       var breakpoint = 0;
@@ -59,6 +65,7 @@ Break at: <input type="text" id="breakpoint">
       function runBatch() {
         if (!running)
           return;
+        myvideo.updateCanvas();
         for (i=0; i < 100000;  i++) { 
           mycpu.step();
           if ((i % 10000) < 30) {
