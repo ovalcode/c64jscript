@@ -100,6 +100,12 @@ const opCodeDesc =
       return pc;
     }
 
+    this.reset = function () {
+      pc = localMem.readMem(0xfffc);
+      pc = pc + localMem.readMem(0xfffd) * 256;
+    }
+
+
     function adcDecimal(operand) { 
     	        var l = 0; 
                 var h = 0;
