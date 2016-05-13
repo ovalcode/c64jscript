@@ -30,7 +30,7 @@ Break at: <input type="text" id="breakpoint">
 
       var mymem = new memory(postInit);
       var mycpu = new cpu(mymem);
-      var myvideo = new video(document.getElementById("screen"));
+      var myvideo = new video(document.getElementById("screen"), mymem);
       var mytimer;
       var running = false;
       var breakpoint = 0;

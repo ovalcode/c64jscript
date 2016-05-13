@@ -4,7 +4,8 @@ function memory(allDownloadedCallback)
   var mainMem = new Uint8Array(65536);
   var basicRom = new Uint8Array(8192);
   var kernalRom = new Uint8Array(8192);
-  var outstandingDownloads = 2;
+  var charRom = new Uint8Array(4192);
+  var outstandingDownloads = 3;
 
   function downloadCompleted() {
     outstandingDownloads--;
@@ -12,6 +13,7 @@ function memory(allDownloadedCallback)
       allDownloadedCallback();
   }
 
+//------------------------------------------------------------------------
 
 var oReqBasic = new XMLHttpRequest();
 oReqBasic.open("GET", "basic.bin", true);
@@ -43,6 +45,28 @@ oReqKernal.onload = function (oEvent) {
 
 oReqKernal.send(null);
 
+//------------------------------------------------------------------------
+
+var oReqChar = new XMLHttpRequest();
+oReqChar.open("GET", "characters.bin", true);
+oReqChar.responseType = "arraybuffer";
+
+oReqChar.onload = function (oEvent) {
+  var arrayBuffer = oReqChar.response; // Note: not oReq.responseText
+  if (arrayBuffer) {
+    charRom = new Uint8Array(arrayBuffer);
+    downloadCompleted();
+  }
+};
+
+oReqChar.send(null);
+
+
+//------------------------------------------------------------------------
+
+  this.readCharRom = function (address) {
+    return charRom[address];
+  }
 
   this.readMem = function (address) {
     if ((address >= 0xa000) & (address <=0xbfff))
