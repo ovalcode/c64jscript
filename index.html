@@ -61,9 +61,14 @@ Break at: <input type="text" id="breakpoint">
           return;
         for (i=0; i < 100000;  i++) { 
           mycpu.step();
+          if ((i % 10000) < 30) {
+            mymem.writeMem(0xD012, 0);
+          } else  {
+            mymem.writeMem(0xD012, 1);
+          }
           if (mycpu.getPc() == breakpoint) {
             stopEm();
-            break;
+            return;
           }
         }
       }
