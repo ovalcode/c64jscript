@@ -95,6 +95,11 @@ const opCodeDesc =
   var decimalflag = 0;
   var interruptflag = 1;
   var breakflag = 1;
+  var cycleCount = 0;
+
+    this.getCycleCount = function() {
+      return cycleCount;
+    }
 
     this.getPc = function () {
       return pc;
@@ -384,6 +389,7 @@ const opCodeDesc =
     var arg1 = 0;
     var arg2 = 0;
     var effectiveAdrress = 0;
+    cycleCount = cycleCount + instructionCycles[opcode];
     if (iLen > 1) {
       arg1 = localMem.readMem(pc);
       pc = pc + 1;
