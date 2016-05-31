@@ -69,6 +69,8 @@ Break at: <input type="text" id="breakpoint">
         var targetCycleCount =  mycpu.getCycleCount() + 20000;
         while (mycpu.getCycleCount() < targetCycleCount) { 
           mycpu.step();
+          if (mycpu.getCycleCount() > 6000000)            
+            mymem.setSimulateKeypress();
           var blankingPeriodLow = targetCycleCount - 100;
           if ((mycpu.getCycleCount() >= blankingPeriodLow) & (mycpu.getCycleCount() <= targetCycleCount)) {
             mymem.writeMem(0xD012, 0);
