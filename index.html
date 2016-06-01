@@ -90,6 +90,7 @@ Break at: <input type="text" id="breakpoint">
       
       function startEm() {
         document.getElementById("btnStep").disabled = true;
+        document.getElementById("btnRun").blur();
         document.getElementById("btnRun").disabled = true;
         document.getElementById("btnStop").disabled = false;
         var myBreak = document.getElementById("breakpoint");
