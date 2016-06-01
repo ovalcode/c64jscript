@@ -5,8 +5,9 @@
     <script src="Memory.js"></script>
     <script src="Cpu.js"></script>
     <script src="Video.js"></script>
+    <script src="Keyboard.js"></script>
   </head>
-  <body>
+  <body onkeydown="mykeyboard.onkeydown(event)" onkeyup="mykeyboard.onkeyup(event)">
     <h1>6502 Emulator From Scratch</h1>
     <p>This is JavaScript Test</p>
 <canvas id="screen" width="320" height="200">
@@ -30,6 +31,7 @@ Break at: <input type="text" id="breakpoint">
 
       var mymem = new memory(postInit);
       var mycpu = new cpu(mymem);
+      var mykeyboard = new keyboard();
       var myvideo = new video(document.getElementById("screen"), mymem);
       var mytimer;
       var running = false;
