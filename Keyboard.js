@@ -1,10 +1,10 @@
 function keyboard() {
   this.onkeydown = function(event) {
-    alert("hallo");
+    alert("hallo "+event.keyCode);
   }
 
   this.onkeyup = function(event) {
-    alert("cheers");
+    alert("cheers "+event.keyCode);
   }
 
 }
