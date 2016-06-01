@@ -29,9 +29,10 @@ From Location:
 Break at: <input type="text" id="breakpoint">
     <script language="JavaScript">
 
-      var mymem = new memory(postInit);
-      var mycpu = new cpu(mymem);
       var mykeyboard = new keyboard();
+      var mymem = new memory(postInit,mykeyboard);
+      var mycpu = new cpu(mymem);
+
       var myvideo = new video(document.getElementById("screen"), mymem);
       var mytimer;
       var running = false;
