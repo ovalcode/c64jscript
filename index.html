@@ -14,6 +14,9 @@
 
 </canvas>
 <br/>
+<input type="file" id="files" name="myfile"/>
+<button onclick="attachTape()">Attach</button>
+</br>
 <textarea id="registers" name="reg" rows="1" cols="60"></textarea>
 <br/>
 <textarea id="memory" name="mem" rows="15" cols="60"></textarea>
@@ -37,6 +40,18 @@ Break at: <input type="text" id="breakpoint">
       var mytimer;
       var running = false;
       var breakpoint = 0;
+     
+     function attachTape() {
+       var reader = new FileReader();
+basicRom = new Uint8Array(arrayBuffer);
+  var kernalRom = new Uint8Array(8192);
+       reader.onload = function(e) {
+         var arrayBuffer = reader.result;
+       }
+       var file = document.getElementById("files");
+       reader.readAsArrayBuffer(file);
+
+     }
 
      function postInit() {
         document.getElementById("btnStep").disabled = false;
