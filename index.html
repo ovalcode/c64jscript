@@ -43,12 +43,15 @@ Break at: <input type="text" id="breakpoint">
      
      function attachTape() {
        var reader = new FileReader();
-basicRom = new Uint8Array(arrayBuffer);
-  var kernalRom = new Uint8Array(8192);
        reader.onload = function(e) {
          var arrayBuffer = reader.result;
+         var myarray = new Uint8Array(arrayBuffer);
+         var i;
+         for (i = 0; i < 10; i++) {       
+           alert(myarray[i]);
+         }
        }
-       var file = document.getElementById("files");
+       var file = document.getElementById("files").files[0];
        reader.readAsArrayBuffer(file);
 
      }
