@@ -19,6 +19,16 @@ function interruptController() {
     return temp;
   }
 
+  this.interruptFlag1 = function() {
+    interruptsOccured = interruptsOccured | 16;
+    if (interruptTrip)
+      return;
+    if ((interruptMask & 16) == 0) 
+      return;
+    interruptTrip = true;
+    mycpu.setInterrupt();
+  }
+
   this.interruptTimerA = function() {
     interruptsOccured = interruptsOccured | 1;
     if (interruptTrip)

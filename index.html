@@ -21,6 +21,8 @@
 <input type="file" id="files" name="myfile"/>
 <button onclick="attachTape()">Attach</button>
 </br>
+<button onclick="mymem.togglePlayPresed()">Play</button>
+</br>
 <textarea id="registers" name="reg" rows="1" cols="60"></textarea>
 <br/>
 <textarea id="memory" name="mem" rows="15" cols="60"></textarea>
@@ -45,10 +47,10 @@ Break at: <input type="text" id="breakpoint">
 
 
       var myAlarmManager = new alarmManager();
-      var myTape = new tape();
       var myInterruptController = new interruptController();
       var myTimer = new timer(myAlarmManager, myInterruptController);
-      var mymem = new memory(postInit,mykeyboard,myTimer, myInterruptController);
+      var myTape = new tape(myAlarmManager, myInterruptController);
+      var mymem = new memory(postInit,mykeyboard,myTimer, myInterruptController, myTape);
       var mycpu = new cpu(mymem);
       myAlarmManager.setCpu(mycpu);
       myInterruptController.setCpu(mycpu);
@@ -57,18 +59,7 @@ Break at: <input type="text" id="breakpoint">
       var breakpoint = 0;
      
      function attachTape() {
-       var reader = new FileReader();
-       reader.onload = function(e) {
-         var arrayBuffer = reader.result;
-         var myarray = new Uint8Array(arrayBuffer);
-         var i;
-         for (i = 0; i < 10; i++) {       
-           alert(myarray[i]);
-         }
-       }
-       var file = document.getElementById("files").files[0];
-       reader.readAsArrayBuffer(file);
-
+       myTape.attachTape(document.getElementById("files").files[0]);
      }
 
      function postInit() {

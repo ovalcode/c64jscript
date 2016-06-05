@@ -1,4 +1,4 @@
-function memory(allDownloadedCallback, keyboard, timerA, interruptController)
+function memory(allDownloadedCallback, keyboard, timerA, interruptController,tape)
 
 {
   var mainMem = new Uint8Array(65536);
@@ -10,6 +10,12 @@ function memory(allDownloadedCallback, keyboard, timerA, interruptController)
   var keyboardInstance = keyboard;
   var mytimerA = timerA;
   var myinterruptController = interruptController;
+  var mytape = tape;
+  var playPressed = false;
+
+  this.togglePlayPresed = function() {
+    playPressed = !playPressed;
+  }
 
   function downloadCompleted() {
     outstandingDownloads--;
@@ -116,6 +122,11 @@ oReqChar.send(null);
       return kernalRom[address & 0x1fff];
     else if ((address >= 0xdc00) & (address <= 0xdcff)) {
       return ciaRead(address);
+    } else if (address == 1) {
+      var temp = mainMem[address] & 239;
+      if (!playPressed)
+        temp = temp | 16;
+      return temp;
     }
     return mainMem[address];
   }
@@ -124,6 +135,10 @@ oReqChar.send(null);
     if ((address >= 0xdc00) & (address <= 0xdcff)) {
       ciaWrite(address, byteval);
       return;
+    } else if (address == 1) {
+      var temp = byteval & 32;
+      temp = temp >> 5;
+      tape.setMotorOn(temp);
     }      
     mainMem[address] = byteval;
   }
