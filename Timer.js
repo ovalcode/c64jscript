@@ -6,6 +6,7 @@ function timer(alarmManager, interruptController) {
   var timerHigh = 0;
   var timerLow = 0;
   var continious = false;
+  var myinterruptController = interruptController;
  
   this.getIsEnabled = function() {
     return isEnabled;
@@ -20,7 +21,7 @@ function timer(alarmManager, interruptController) {
   }
 
   this.trigger = function() {
-    //trigger interrupt
+    myinterruptController.interruptTimerA();
     ticksBeforeExpiry = (timerHigh << 8) | timerLow;
     if (!continious)
       isEnabled = false;
