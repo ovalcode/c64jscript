@@ -1,4 +1,4 @@
-function timer(alarmManager) {
+function timer(alarmManager, interruptController) {
   var myAlarmManager = alarmManager;
   var isEnabled = false;
   var ticksBeforeExpiry = 0;
@@ -20,6 +20,10 @@ function timer(alarmManager) {
   }
 
   this.trigger = function() {
+    //trigger interrupt
+    ticksBeforeExpiry = (timerHigh << 8) | timerLow;
+    if (!continious)
+      isEnabled = false;
   }
 
   this.setTimerHigh = function(high) {
@@ -50,7 +54,11 @@ function timer(alarmManager) {
 
   this.getControlRegister = function() {
     var tempValue = 0;
-    
+    if (continious)
+      tempValue = tempValue | 1 << 3;
+    if (isEnabled)
+      tempValue = tempValue | 1;
+    return tempValue;
   }
 
 }

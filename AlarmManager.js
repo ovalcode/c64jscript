@@ -1,7 +1,11 @@
-function alarmManager(cpu) {
-  var myCpu = cpu;
+function alarmManager() {
+  var myCpu;
   var alarms = [];
   var lastCycleCount = 0;
+
+  this.setCpu = function (cpu) {
+    myCpu = cpu;
+  }
 
   this.addAlarm = function (alarmObject) {
     alarms.push(alarmObject);

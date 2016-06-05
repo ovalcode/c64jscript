@@ -6,6 +6,9 @@
     <script src="Cpu.js"></script>
     <script src="Video.js"></script>
     <script src="Keyboard.js"></script>
+    <script src="InterruptController.js"></script>
+    <script src="AlarmManager.js"></script>
+    <script src="Timer.js"></script>
   </head>
   <body onkeydown="mykeyboard.onkeydown(event)" onkeyup="mykeyboard.onkeyup(event)">
     <h1>6502 Emulator From Scratch</h1>
@@ -33,11 +36,21 @@ Break at: <input type="text" id="breakpoint">
     <script language="JavaScript">
 
       var mykeyboard = new keyboard();
-      var mymem = new memory(postInit,mykeyboard);
-      var mycpu = new cpu(mymem);
 
+      //timer
+      //memory
+
+      //interrupt controller
+
+
+      var myAlarmManager = new alarmManager();
+      var myInterruptController = new interruptController();
+      var myTimer = new timer(myAlarmManager, myInterruptController);
+      var mymem = new memory(postInit,mykeyboard,myTimer, myInterruptController);
+      var mycpu = new cpu(mymem);
+      myAlarmManager.setCpu(mycpu);
+      myInterruptController.setCpu(mycpu);
       var myvideo = new video(document.getElementById("screen"), mymem);
-      var mytimer;
       var running = false;
       var breakpoint = 0;
      
@@ -90,8 +103,9 @@ Break at: <input type="text" id="breakpoint">
         var targetCycleCount =  mycpu.getCycleCount() + 20000;
         while (mycpu.getCycleCount() < targetCycleCount) { 
           mycpu.step();
-          if (mycpu.getCycleCount() > 6000000)            
-            mymem.setSimulateKeypress();
+          myAlarmManager.processAlarms();
+          //if (mycpu.getCycleCount() > 6000000)            
+          //  mymem.setSimulateKeypress();
           var blankingPeriodLow = targetCycleCount - 100;
           if ((mycpu.getCycleCount() >= blankingPeriodLow) & (mycpu.getCycleCount() <= targetCycleCount)) {
             mymem.writeMem(0xD012, 0);
@@ -103,7 +117,8 @@ Break at: <input type="text" id="breakpoint">
             return;
           }
         }
-        mycpu.setInterrupt();
+        //mycpu.setInterrupt();
+
       }
       
       function startEm() {
