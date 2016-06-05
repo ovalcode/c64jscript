@@ -9,6 +9,7 @@
     <script src="InterruptController.js"></script>
     <script src="AlarmManager.js"></script>
     <script src="Timer.js"></script>
+    <script src="Tape.js"></script>
   </head>
   <body onkeydown="mykeyboard.onkeydown(event)" onkeyup="mykeyboard.onkeyup(event)">
     <h1>6502 Emulator From Scratch</h1>
@@ -44,6 +45,7 @@ Break at: <input type="text" id="breakpoint">
 
 
       var myAlarmManager = new alarmManager();
+      var myTape = new tape();
       var myInterruptController = new interruptController();
       var myTimer = new timer(myAlarmManager, myInterruptController);
       var mymem = new memory(postInit,mykeyboard,myTimer, myInterruptController);
