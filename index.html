@@ -48,9 +48,10 @@ Break at: <input type="text" id="breakpoint">
 
       var myAlarmManager = new alarmManager();
       var myInterruptController = new interruptController();
-      var myTimer = new timer(myAlarmManager, myInterruptController);
+      var myTimerA = new timer(myAlarmManager, myInterruptController,"A");
+      var myTimerB = new timer(myAlarmManager, myInterruptController, "B");
       var myTape = new tape(myAlarmManager, myInterruptController);
-      var mymem = new memory(postInit,mykeyboard,myTimer, myInterruptController, myTape);
+      var mymem = new memory(postInit,mykeyboard,myTimerA, myTimerB, myInterruptController, myTape);
       var mycpu = new cpu(mymem);
       myAlarmManager.setCpu(mycpu);
       myInterruptController.setCpu(mycpu);

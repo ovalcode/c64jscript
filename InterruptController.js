@@ -9,7 +9,12 @@ function interruptController() {
   } 
 
   this.setInterruptMask = function(mask) {
-    interruptMask = mask;
+    if (mask > 127) {
+      interruptMask = interruptMask | mask;
+    } else {
+      interruptMask = interruptMask & (~mask & 0xff);
+    }
+
   }
 
   this.getInterrupts = function() {
@@ -20,7 +25,7 @@ function interruptController() {
   }
 
   this.interruptFlag1 = function() {
-    interruptsOccured = interruptsOccured | 16;
+    interruptsOccured = interruptsOccured | 16 | 128;
     if (interruptTrip)
       return;
     if ((interruptMask & 16) == 0) 
@@ -30,7 +35,7 @@ function interruptController() {
   }
 
   this.interruptTimerA = function() {
-    interruptsOccured = interruptsOccured | 1;
+    interruptsOccured = interruptsOccured | 1 | 128;
     if (interruptTrip)
       return;
     if ((interruptMask & 1) == 0) 
@@ -38,4 +43,15 @@ function interruptController() {
     interruptTrip = true;
     mycpu.setInterrupt();
   }
+
+  this.interruptTimerB = function() {
+    interruptsOccured = interruptsOccured | 2 | 128;
+    if (interruptTrip)
+      return;
+    if ((interruptMask & 2) == 0) 
+      return;
+    interruptTrip = true;
+    mycpu.setInterrupt();
+  }
+
 }

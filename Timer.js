@@ -1,12 +1,13 @@
-function timer(alarmManager, interruptController) {
+function timer(alarmManager, interruptController, timerName) {
   var myAlarmManager = alarmManager;
   var isEnabled = false;
   var ticksBeforeExpiry = 0;
   myAlarmManager.addAlarm(this);
-  var timerHigh = 0;
-  var timerLow = 0;
+  var timerHigh = 255;
+  var timerLow = 255;
   var continious = false;
   var myinterruptController = interruptController;
+  var myTimerName = timerName;
  
   this.getIsEnabled = function() {
     return isEnabled;
@@ -21,7 +22,10 @@ function timer(alarmManager, interruptController) {
   }
 
   this.trigger = function() {
-    myinterruptController.interruptTimerA();
+    if (myTimerName == "A")
+      myinterruptController.interruptTimerA();
+    else
+      myinterruptController.interruptTimerB();
     ticksBeforeExpiry = (timerHigh << 8) | timerLow;
     if (!continious)
       isEnabled = false;
