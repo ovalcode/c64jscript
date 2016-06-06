@@ -42,7 +42,7 @@ function tape(alarmManager, interruptController) {
   }
 
   this.trigger = function() {
-    myinterruptController.interruptFlag1();
+    myInterruptController.interruptFlag1();
     scheduleNextTrigger();
   }
 
