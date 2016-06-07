@@ -53,6 +53,7 @@ Break at: <input type="text" id="breakpoint">
       var myTape = new tape(myAlarmManager, myInterruptController);
       var mymem = new memory(postInit,mykeyboard,myTimerA, myTimerB, myInterruptController, myTape);
       var mycpu = new cpu(mymem);
+      mycpu.setInterruptSource(myInterruptController);
       myAlarmManager.setCpu(mycpu);
       myInterruptController.setCpu(mycpu);
       var myvideo = new video(document.getElementById("screen"), mymem);

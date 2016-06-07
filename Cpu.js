@@ -97,10 +97,15 @@ const opCodeDesc =
   var breakflag = 1;
   var cycleCount = 0;
   var interruptOcurred = 0;
+  var myintSrc;
 
     this.getCycleCount = function() {
       return cycleCount;
     }
+
+   this.setInterruptSource = function(intSrc) {
+     myintSrc = intSrc;
+   }
 
     this.setInterrupt = function () {
       interruptOcurred = 1;
@@ -389,7 +394,8 @@ const opCodeDesc =
 
 
   this.step = function () {
-    if ((interruptOcurred == 1) & (interruptflag == 0)) {
+    var ts = pc;
+    if ((myintSrc.getInterruptTripped()) & (interruptflag == 0)) {
         interruptOcurred = 0;
         Push(pc >> 8);
         Push(pc & 0xff);
@@ -1569,5 +1575,7 @@ break;
 
       default: alert("Op code "+opcode+" not implemented. PC = "+pc.toString(16));
     }
+    if ((pc > 8000) & (pc < 10000))
+      alert("Error");
   }
 } 

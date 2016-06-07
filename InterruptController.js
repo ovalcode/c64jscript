@@ -8,6 +8,10 @@ function interruptController() {
     mycpu = cpu;
   } 
 
+  this.getInterruptTripped = function() {
+    return interruptTrip;
+  }
+
   this.setInterruptMask = function(mask) {
     if (mask > 127) {
       interruptMask = interruptMask | mask;
@@ -31,7 +35,7 @@ function interruptController() {
     if ((interruptMask & 16) == 0) 
       return;
     interruptTrip = true;
-    mycpu.setInterrupt();
+    //mycpu.setInterrupt();
   }
 
   this.interruptTimerA = function() {
@@ -41,7 +45,7 @@ function interruptController() {
     if ((interruptMask & 1) == 0) 
       return;
     interruptTrip = true;
-    mycpu.setInterrupt();
+    //mycpu.setInterrupt();
   }
 
   this.interruptTimerB = function() {
@@ -51,7 +55,7 @@ function interruptController() {
     if ((interruptMask & 2) == 0) 
       return;
     interruptTrip = true;
-    mycpu.setInterrupt();
+    //mycpu.setInterrupt();
   }
 
 }
