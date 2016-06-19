@@ -14,6 +14,9 @@
 
 </canvas>
 <br/>
+<input type="file" id="file" name="myfile"/>
+<button onclick="myTape.attachTape(document.getElementById('file').files[0])">Attach</button>
+<br/>
 <textarea id="registers" name="reg" rows="1" cols="60"></textarea>
 <br/>
 <textarea id="memory" name="mem" rows="15" cols="60"></textarea>
