@@ -17,6 +17,8 @@
 <input type="file" id="file" name="myfile"/>
 <button onclick="myTape.attachTape(document.getElementById('file').files[0])">Attach</button>
 <br/>
+<button onclick="mymem.togglePlayPresed()">Play</button>
+<br/>
 <textarea id="registers" name="reg" rows="1" cols="60"></textarea>
 <br/>
 <textarea id="memory" name="mem" rows="15" cols="60"></textarea>
@@ -33,8 +35,15 @@ Break at: <input type="text" id="breakpoint">
     <script language="JavaScript">
 
       var mykeyboard = new keyboard();
-      var mymem = new memory(postInit,mykeyboard);
+      var myAlarmManager = new alarmManager();
+      var myInterruptController = new interruptController();
+      var myTimerA = new timer(myAlarmManager, myInterruptController,"A");
+      var myTimerB = new timer(myAlarmManager, myInterruptController, "B");
+      var myTape = new tape(myAlarmManager, myInterruptController);
+      var mymem = new memory(postInit,mykeyboard, myTimerA, myTimerB, myInterruptController, myTape);
       var mycpu = new cpu(mymem);
+      myAlarmManager.setCpu(mycpu);
+      myInterruptController.setCpu(mycpu);
 
       var myvideo = new video(document.getElementById("screen"), mymem);
       var mytimer;
@@ -75,8 +84,9 @@ Break at: <input type="text" id="breakpoint">
         var targetCycleCount =  mycpu.getCycleCount() + 20000;
         while (mycpu.getCycleCount() < targetCycleCount) { 
           mycpu.step();
-          if (mycpu.getCycleCount() > 6000000)            
-            mymem.setSimulateKeypress();
+          myAlarmManager.processAlarms();
+          //if (mycpu.getCycleCount() > 6000000)            
+          //  mymem.setSimulateKeypress();
           var blankingPeriodLow = targetCycleCount - 100;
           if ((mycpu.getCycleCount() >= blankingPeriodLow) & (mycpu.getCycleCount() <= targetCycleCount)) {
             mymem.writeMem(0xD012, 0);
@@ -88,7 +98,7 @@ Break at: <input type="text" id="breakpoint">
             return;
           }
         }
-        mycpu.setInterrupt();
+        //mycpu.setInterrupt();
       }
       
       function startEm() {

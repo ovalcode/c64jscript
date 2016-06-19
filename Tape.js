@@ -1,5 +1,6 @@
-function tape(alarmManager) {
+function tape(alarmManager, interruptManager) {
   var myAlarmManager = alarmManager;
+  var myInterruptManager = interruptManager;
   var tapeData;
   var posInTape;
   var isEnabled = false;
@@ -41,7 +42,7 @@ function tape(alarmManager) {
   }
 
   this.trigger = function() {
-    //trigger interrupt
+    myInterruptManager.interruptFlag1();
     scheduleNextTrigger();
   }
 
