@@ -97,6 +97,11 @@ const opCodeDesc =
   var breakflag = 1;
   var cycleCount = 0;
   var interruptOcurred = 0;
+  var myInterruptController;
+
+  this.setInterruptController = function (interruptController) {
+    myInterruptController = interruptController;
+  }
 
     this.getCycleCount = function() {
       return cycleCount;
@@ -389,7 +394,7 @@ const opCodeDesc =
 
 
   this.step = function () {
-    if ((interruptOcurred == 1) & (interruptflag == 0)) {
+    if ((myInterruptController.getCpuInterruptOcurred()) & (interruptflag == 0)) {
         interruptOcurred = 0;
         Push(pc >> 8);
         Push(pc & 0xff);

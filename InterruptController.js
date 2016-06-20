@@ -2,6 +2,7 @@ function interruptController() {
   var mycpu;
   var interruptMask = 0;
   var interruptsOccured = 0;
+  var interruptCpu = false;
 
   this.setCpu = function(cpu) {
     mycpu = cpu;
@@ -16,9 +17,14 @@ function interruptController() {
 
   }
 
+  this.getCpuInterruptOcurred = function() {
+    return interruptCpu;
+  }
+
   this.getInterrupts = function() {
     var temp = interruptsOccured;
     interruptsOccured = 0;
+    interruptCpu = false;
     return temp;
   }
 
@@ -26,21 +32,24 @@ function interruptController() {
     interruptsOccured = interruptsOccured | 16 | 128;
     if ((interruptMask & 16) == 0) 
       return;
-    mycpu.setInterrupt();
+    interruptCpu = true;
+    //mycpu.setInterrupt();
   }
 
   this.interruptTimerA = function() {
     interruptsOccured = interruptsOccured | 1 | 128;
     if ((interruptMask & 1) == 0) 
       return;
-    mycpu.setInterrupt();
+    interruptCpu = true;
+    //mycpu.setInterrupt();
   }
 
   this.interruptTimerB = function() {
     interruptsOccured = interruptsOccured | 2 | 128;
     if ((interruptMask & 2) == 0) 
       return;
-    mycpu.setInterrupt();
+    interruptCpu = true;
+    //mycpu.setInterrupt();
   }
 
 }

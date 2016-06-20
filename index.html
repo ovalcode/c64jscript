@@ -48,6 +48,7 @@ Break at: <input type="text" id="breakpoint">
       var mycpu = new cpu(mymem);
       myAlarmManager.setCpu(mycpu);
       myInterruptController.setCpu(mycpu);
+      mycpu.setInterruptController(myInterruptController);
 
       var myvideo = new video(document.getElementById("screen"), mymem);
       var mytimer;
