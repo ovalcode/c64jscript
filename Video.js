@@ -1,9 +1,16 @@
-function video(mycanvas, mem) {
+function video(mycanvas, mem, cpu) {
   var localMem = mem;
   var ctx = mycanvas.getContext("2d");
+  var mycpu = cpu;
+  var cpuCycles = 0;  
 
   this.processpixels = function() {
-    
+    var numBytes = mycpu.getCycleCount() - cpuCycles;
+    cpuCycles = mycpu.getCycleCount();
+    var i;
+    for (i = 0; i < numBytes; i++) {
+      
+    }
   }
 
   this.updateCanvas = function() {
