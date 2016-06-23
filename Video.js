@@ -4,23 +4,46 @@ function video(mycanvas, mem, cpu) {
   var mycpu = cpu;
   var cpuCycles = 0;
   var cycleInLine = 0;
-  var cycleline = 0;  
+  var cycleline = 0;
+  var charPosInMem = 0;  
 
   this.processpixels = function() {
     var numBytes = mycpu.getCycleCount() - cpuCycles;
     cpuCycles = mycpu.getCycleCount();
     var i;
     for (i = 0; i < numBytes; i++) {
+      if (isVisibleArea) {
+        if (isPixelArea) {
+          
+        }
+      }
+
       cycleInLine++;
+
       if (cycleInLine > 63) {
         cycleInLine = 0;
         cycleline++;
+        if ((((cycleline - 42) & 7) == 0) & (cycleline < (42 + 200))) {
+         charPosInMem = charPosInMem + 40;
+         if (charPosInMem > 999)
+           charPosInMem = 0;
+        } 
       }
       if (cycleline > 311) {
         cycleline = 0;
       }
       
     }
+  }
+
+  function isVisibleArea() {
+    return (cycleInLine < 50) & (cycleline < 284);
+  }
+
+  function isPixelArea() {
+    var visibleColumn = (cycleInLine > 4) & (cycleInLine < (5+40));
+    var visibleRow = (cycleline > 41) & (cycleline < (42 + 200));
+    return (visibleColumn & visibleRow);
   }
 
   this.updateCanvas = function() {
