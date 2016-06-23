@@ -2,13 +2,23 @@ function video(mycanvas, mem, cpu) {
   var localMem = mem;
   var ctx = mycanvas.getContext("2d");
   var mycpu = cpu;
-  var cpuCycles = 0;  
+  var cpuCycles = 0;
+  var cycleInLine = 0;
+  var cycleline = 0;  
 
   this.processpixels = function() {
     var numBytes = mycpu.getCycleCount() - cpuCycles;
     cpuCycles = mycpu.getCycleCount();
     var i;
     for (i = 0; i < numBytes; i++) {
+      cycleInLine++;
+      if (cycleInLine > 63) {
+        cycleInLine = 0;
+        cycleline++;
+      }
+      if (cycleline > 311) {
+        cycleline = 0;
+      }
       
     }
   }
