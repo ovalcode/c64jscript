@@ -7,6 +7,24 @@ function video(mycanvas, mem, cpu) {
   var cycleline = 0;
   var charPosInMem = 0;  
 
+  const colors = [[0, 0, 0],
+                  [255, 255, 255],
+                  [136, 0, 0],
+                  [170, 255, 238],
+                  [204, 68, 204],
+                  [0, 204, 85],
+                  [0, 0, 170],
+                  [238, 238, 119],
+                  [221, 136, 85],
+                  [102, 68, 0],
+                  [255, 119, 119],
+                  [51, 51, 51],
+                  [119, 119, 119],
+                  [170, 255, 102],
+                  [0, 136, 255],
+                  [187, 187, 187]];
+
+
   this.processpixels = function() {
     var numBytes = mycpu.getCycleCount() - cpuCycles;
     cpuCycles = mycpu.getCycleCount();
@@ -15,6 +33,7 @@ function video(mycanvas, mem, cpu) {
       if (isVisibleArea) {
         if (isPixelArea) {
           
+        } else {
         }
       }
 
