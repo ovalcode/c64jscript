@@ -1,6 +1,11 @@
 function video(mycanvas, mem) {
   var localMem = mem;
   var ctx = mycanvas.getContext("2d");
+
+  this.processpixels = function() {
+    
+  }
+
   this.updateCanvas = function() {
     var imgData = ctx.createImageData(320, 200);
     var i, currentScreenPos;
