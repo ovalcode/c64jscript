@@ -35,9 +35,7 @@ function video(mycanvas, mem, cpu) {
     for (i = 0; i < numBytes; i++) {
       if (isVisibleArea) {
         if (isPixelArea) {
-      var screenCode = localMem.readMem(1024 + currentScreenPos);
-        var currentLine = localMem.readCharRom((screenCode << 3) + currentRow);
-        //draw small text line          
+          drawCharline();
         } else {
           fillBorderColor();
         }
@@ -60,30 +58,39 @@ function video(mycanvas, mem, cpu) {
 
       
     }
+    //TODO:
+    //When number of lines finished
+    //force draw
+    //recreate frame
+    //remove call to update canvas in runbatch method
+    //call putimage method
+    //return boolean indicating runbatch must exit
+    //change runbatch to exit if above rteurn true
   }
 
-/*
-        for (currentCol = 0; currentCol < 8; currentCol++) {
-          var pixelSet = (currentLine & 0x80) == 0x80;
-          var pixelPosX = (currentScreenX << 3) + currentCol;
-          var pixelPosY = (currentScreenY << 3) + currentRow;
-          var posInBuffer = (pixelPosY * 320 + pixelPosX) << 2;
-          if (pixelSet) {
-            imgData.data[posInBuffer + 0] = 0;
-            imgData.data[posInBuffer + 1] = 0;
-            imgData.data[posInBuffer + 2] = 0;
-            imgData.data[posInBuffer + 3] = 255;
-          } else {
-            imgData.data[posInBuffer + 0] = 255;
-            imgData.data[posInBuffer + 1] = 255;
-            imgData.data[posInBuffer + 2] = 255;
-            imgData.data[posInBuffer + 3] = 255;
 
-          }
-          currentLine = currentLine << 1;
-        }
-
-*/
+  function drawCharline() {
+    var screenCode = localMem.readMem(1024 + charPosInMem + cycleInLine - 5);
+    var currentLine = localMem.readCharRom((screenCode << 3) + ((cycleline - 42) & 7));
+    var textColor = localMem.readMem(0xd800 + charPosInMem + cycleInLine - 5);
+    var backgroundColor = localMem.readMem(0xd021);
+    for (currentCol = 0; currentCol < 8; currentCol++) {
+      var pixelSet = (currentLine & 0x80) == 0x80;
+      if (pixelSet) {
+        imgData.data[posInCanvas + 0] = colors[textColor][0];
+        imgData.data[posInCanvas + 1] = colors[textColor][1];
+        imgData.data[posInCanvas + 2] = colors[textColor][2];
+        imgData.data[posInCanvas + 3] = 255;
+      } else {
+        imgData.data[posInCanvas + 0] = colors[backgroundColor][0];
+        imgData.data[posInCanvas + 1] = colors[backgroundColor][1];
+        imgData.data[posInCanvas + 2] = colors[backgroundColor][2];
+        imgData.data[posInCanvas + 3] = 255;
+      }
+      currentLine = currentLine << 1;
+      posInCanvas = posInCanvas + 4;
+   }
+  }
 
   function fillBorderColor() {
     var borderColor = localMem.readMem(0xd020);
