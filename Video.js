@@ -7,6 +7,8 @@ function video(mycanvas, mem, cpu) {
   var cycleline = 0;
   var charPosInMem = 0;  
   var posInCanvas = 0;
+  var imgData = ctx.createImageData(320, 200);
+
 
   const colors = [[0, 0, 0],
                   [255, 255, 255],
@@ -33,9 +35,11 @@ function video(mycanvas, mem, cpu) {
     for (i = 0; i < numBytes; i++) {
       if (isVisibleArea) {
         if (isPixelArea) {
-          
+      var screenCode = localMem.readMem(1024 + currentScreenPos);
+        var currentLine = localMem.readCharRom((screenCode << 3) + currentRow);
+        //draw small text line          
         } else {
-          
+          fillBorderColor();
         }
       }
 
@@ -58,13 +62,40 @@ function video(mycanvas, mem, cpu) {
     }
   }
 
+/*
+        for (currentCol = 0; currentCol < 8; currentCol++) {
+          var pixelSet = (currentLine & 0x80) == 0x80;
+          var pixelPosX = (currentScreenX << 3) + currentCol;
+          var pixelPosY = (currentScreenY << 3) + currentRow;
+          var posInBuffer = (pixelPosY * 320 + pixelPosX) << 2;
+          if (pixelSet) {
+            imgData.data[posInBuffer + 0] = 0;
+            imgData.data[posInBuffer + 1] = 0;
+            imgData.data[posInBuffer + 2] = 0;
+            imgData.data[posInBuffer + 3] = 255;
+          } else {
+            imgData.data[posInBuffer + 0] = 255;
+            imgData.data[posInBuffer + 1] = 255;
+            imgData.data[posInBuffer + 2] = 255;
+            imgData.data[posInBuffer + 3] = 255;
+
+          }
+          currentLine = currentLine << 1;
+        }
+
+*/
+
   function fillBorderColor() {
     var borderColor = localMem.readMem(0xd020);
     var i;
     for (i = 0; i < 8; i++ ) {
-//when should canvas array be created???
+      imgData.data[posInCanvas + 0] = colors[borderColor][0];
+      imgData.data[posInCanvas + 1] = colors[borderColor][1];
+      imgData.data[posInCanvas + 2] = colors[borderColor][2];
+      imgData.data[posInCanvas + 3] = 255;
+      posInCanvas = posInCanvas + 4;
     }
-posInCanvas
+
   }
 
   function isVisibleArea() {
