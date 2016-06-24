@@ -6,6 +6,7 @@ function video(mycanvas, mem, cpu) {
   var cycleInLine = 0;
   var cycleline = 0;
   var charPosInMem = 0;  
+  var posInCanvas = 0;
 
   const colors = [[0, 0, 0],
                   [255, 255, 255],
@@ -34,6 +35,7 @@ function video(mycanvas, mem, cpu) {
         if (isPixelArea) {
           
         } else {
+          
         }
       }
 
@@ -51,8 +53,18 @@ function video(mycanvas, mem, cpu) {
       if (cycleline > 311) {
         cycleline = 0;
       }
+
       
     }
+  }
+
+  function fillBorderColor() {
+    var borderColor = localMem.readMem(0xd020);
+    var i;
+    for (i = 0; i < 8; i++ ) {
+//when should canvas array be created???
+    }
+posInCanvas
   }
 
   function isVisibleArea() {
