@@ -58,6 +58,7 @@ function video(mycanvas, mem, cpu) {
       if (cycleline > 311) {
         cycleline = 0;
         ctx.putImageData(imgData,0,0);
+        posInCanvas = 0;
         //imgData = ctx.createImageData(400, 284);
         return true;
       }
