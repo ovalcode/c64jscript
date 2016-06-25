@@ -7,7 +7,7 @@ function video(mycanvas, mem, cpu) {
   var cycleline = 0;
   var charPosInMem = 0;  
   var posInCanvas = 0;
-  var imgData = ctx.createImageData(320, 200);
+  var imgData = ctx.createImageData(400, 284);
 
 
   const colors = [[0, 0, 0],
@@ -27,6 +27,9 @@ function video(mycanvas, mem, cpu) {
                   [0, 136, 255],
                   [187, 187, 187]];
 
+  this.getCurrentLine = function() {
+    return cycleline;
+  }
 
   this.processpixels = function() {
     var numBytes = mycpu.getCycleCount() - cpuCycles;
@@ -55,7 +58,7 @@ function video(mycanvas, mem, cpu) {
       if (cycleline > 311) {
         cycleline = 0;
         ctx.putImageData(imgData,0,0);
-        imgData = ctx.createImageData(320, 200);
+        //imgData = ctx.createImageData(400, 284);
         return true;
       }
 

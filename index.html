@@ -14,7 +14,7 @@
   <body onkeydown="mykeyboard.onkeydown(event)" onkeyup="mykeyboard.onkeyup(event)">
     <h1>6502 Emulator From Scratch</h1>
     <p>This is JavaScript Test</p>
-<canvas id="screen" width="320" height="200">
+<canvas id="screen" width="400" height="284">
 
 </canvas>
 <br/>
@@ -56,7 +56,7 @@ Break at: <input type="text" id="breakpoint">
       mycpu.setInterruptSource(myInterruptController);
       myAlarmManager.setCpu(mycpu);
       myInterruptController.setCpu(mycpu);
-      var myvideo = new video(document.getElementById("screen"), mymem);
+      var myvideo = new video(document.getElementById("screen"), mymem, mycpu);
       var running = false;
       var breakpoint = 0;
      
@@ -94,15 +94,15 @@ Break at: <input type="text" id="breakpoint">
       function runBatch() {
         if (!running)
           return;
-        myvideo.updateCanvas();
-        var targetCycleCount =  mycpu.getCycleCount() + 20000;
-        while (mycpu.getCycleCount() < targetCycleCount) { 
+        //myvideo.updateCanvas();
+        //var targetCycleCount =  mycpu.getCycleCount() + 20000;
+        while (true) { 
           mycpu.step();
           myAlarmManager.processAlarms();
           //if (mycpu.getCycleCount() > 6000000)            
           //  mymem.setSimulateKeypress();
-          var blankingPeriodLow = targetCycleCount - 100;
-          if ((mycpu.getCycleCount() >= blankingPeriodLow) & (mycpu.getCycleCount() <= targetCycleCount)) {
+          //var blankingPeriodLow = targetCycleCount - 100;
+          if (myvideo.getCurrentLine() > 284) { 
             mymem.writeMem(0xD012, 0);
           } else  {
             mymem.writeMem(0xD012, 1);
@@ -111,6 +111,9 @@ Break at: <input type="text" id="breakpoint">
             stopEm();
             return;
           }
+          var framefinished = myvideo.processpixels();
+          if (framefinished)
+            return;
         }
         //mycpu.setInterrupt();
 
