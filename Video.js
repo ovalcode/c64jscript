@@ -54,9 +54,12 @@ function video(mycanvas, mem, cpu) {
       }
       if (cycleline > 311) {
         cycleline = 0;
+        ctx.putImageData(imgData,0,0);
+        imgData = ctx.createImageData(320, 200);
+        return true;
       }
 
-      
+      return false;
     }
     //TODO:
     //When number of lines finished
