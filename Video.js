@@ -36,8 +36,8 @@ function video(mycanvas, mem, cpu) {
     cpuCycles = mycpu.getCycleCount();
     var i;
     for (i = 0; i < numBytes; i++) {
-      if (isVisibleArea) {
-        if (isPixelArea) {
+      if (isVisibleArea()) {
+        if (isPixelArea()) {
           drawCharline();
         } else {
           fillBorderColor();
