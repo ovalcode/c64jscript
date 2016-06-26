@@ -2,6 +2,7 @@ function memory(allDownloadedCallback, keyboard, timerA, timerB, interruptContro
 
 {
   var mainMem = new Uint8Array(65536);
+  mainMem[1] = 3;
   var basicRom = new Uint8Array(8192);
   var kernalRom = new Uint8Array(8192);
   var charRom = new Uint8Array(4192);
@@ -128,10 +129,15 @@ oReqChar.send(null);
     
   }
 
+  function kernelEnabled() {
+    temp = mainMem[1] & 3;
+    return (temp >= 2);
+  }
+
   this.readMem = function (address) {
     if ((address >= 0xa000) & (address <=0xbfff))
       return basicRom[address & 0x1fff];
-    else if ((address >= 0xe000) & (address <=0xffff))
+    else if ((address >= 0xe000) & (address <=0xffff) & kernelEnabled())
       return kernalRom[address & 0x1fff];
     else if ((address >= 0xdc00) & (address <= 0xdcff)) {
       return ciaRead(address);

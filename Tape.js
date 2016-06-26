@@ -25,8 +25,13 @@ function tape(alarmManager, interruptController) {
   }
 
   function scheduleNextTrigger() {
-    ticksBeforeExpiry = tapeData[posInTape] << 3;
-    posInTape++;
+    if (tapeData[posInTape] == 0) {
+      ticksBeforeExpiry = tapeData[posInTape + 1] | (tapeData[posInTape + 2] << 8) | (tapeData[posInTape + 3] << 16)
+      posInTape = posInTape + 4;
+    } else {
+      ticksBeforeExpiry = tapeData[posInTape] << 3;
+      posInTape++;
+    }
   }
 
   this.getIsEnabled = function() {
