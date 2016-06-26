@@ -59,6 +59,7 @@ function video(mycanvas, mem, cpu) {
         cycleline = 0;
         ctx.putImageData(imgData,0,0);
         posInCanvas = 0;
+        charPosInMem = 0;
         //imgData = ctx.createImageData(400, 284);
         return true;
       }
