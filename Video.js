@@ -60,8 +60,9 @@ function video(mycanvas, mem, cpu) {
         return true;
       }
 
-      return false;
+
     }
+      return false;
     //TODO:
     //When number of lines finished
     //force draw
