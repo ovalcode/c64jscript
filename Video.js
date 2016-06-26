@@ -49,11 +49,7 @@ function video(mycanvas, mem, cpu) {
       if (cycleInLine > 63) {
         cycleInLine = 0;
         cycleline++;
-        if ((((cycleline - 42) & 7) == 0) & (cycleline < (42 + 200))) {
-         charPosInMem = charPosInMem + 40;
-         if (charPosInMem > 999)
-           charPosInMem = 0;
-        } 
+        updateCharPos();
       }
       if (cycleline > 311) {
         cycleline = 0;
@@ -74,6 +70,19 @@ function video(mycanvas, mem, cpu) {
     //call putimage method
     //return boolean indicating runbatch must exit
     //change runbatch to exit if above rteurn true
+  }
+
+  function updateCharPos() {
+    if ( !((cycleline > 41) & (cycleline < (42 + 200))) )
+      return;
+    var lineInScreen = cycleline - 42;
+    if (lineInScreen == 0) {
+      charPosInMem = 0;
+      return;
+    }
+    if ((lineInScreen & 7) == 0) {
+      charPosInMem = charPosInMem + 40;
+    }
   }
 
 
