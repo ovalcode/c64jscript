@@ -37,7 +37,7 @@ function video(mycanvas, mem, cpu) {
     var i;
     for (i = 0; i < numBytes; i++) {
       if (isVisibleArea()) {
-        if (isPixelArea()) {
+        if (isPixelArea() & displayEnabled()) {
           drawCharline();
         } else {
           fillBorderColor();
@@ -71,6 +71,10 @@ function video(mycanvas, mem, cpu) {
     //call putimage method
     //return boolean indicating runbatch must exit
     //change runbatch to exit if above rteurn true
+  }
+
+  function displayEnabled() {
+    return ((localMem.readMem(0xd011) & 0x10) != 0)
   }
 
   function updateCharPos() {
