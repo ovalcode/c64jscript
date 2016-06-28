@@ -111,7 +111,7 @@ function video(mycanvas, mem, cpu) {
   }
 
   function fillBorderColor() {
-    var borderColor = localMem.readMem(0xd020);
+    var borderColor = localMem.readMem(0xd020) & 0xf;
     var i;
     for (i = 0; i < 8; i++ ) {
       imgData.data[posInCanvas + 0] = colors[borderColor][0];
