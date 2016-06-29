@@ -18,6 +18,13 @@
 
 </canvas>
 <br/>
+<table>
+  <tr>
+  <td style="background-color:white; -webkit-user-select:none" id="box1">Q</td>
+  <td>W</td>
+  </tr>
+</table>
+<br/>
 <input type="file" id="files" name="myfile"/>
 <button onclick="attachTape()">Attach</button>
 </br>
@@ -45,6 +52,17 @@ Break at: <input type="text" id="breakpoint">
 
       //interrupt controller
 
+      var box1 = document.getElementById('box1');
+      
+    box1.addEventListener('touchstart', function(e){
+        document.getElementById("box1").style.backgroundColor = "#555555";
+        mykeyboard.ontouchdown(81);
+    }, false);
+
+    box1.addEventListener('touchend', function(e){
+        document.getElementById("box1").style.backgroundColor = "white";
+        mykeyboard.ontouchremoved(81);
+    }, false);
 
       var myAlarmManager = new alarmManager();
       var myInterruptController = new interruptController();

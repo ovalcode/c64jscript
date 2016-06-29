@@ -56,6 +56,18 @@ function keyboard() {
     keyarray.splice(ind,1);
   }
 
+  this.ontouchdown = function(keyCode) {
+
+    if (keyarray.indexOf(keyCode) == -1)
+      keyarray.push(keyCode);
+  }
+
+  this.ontouchremoved = function(keyCode) {
+    var ind = keyarray.indexOf(keyCode);
+    keyarray.splice(ind,1);
+  }
+
+
   function getScanCode(chr) {
     switch (chr) {
       case KEY_A:

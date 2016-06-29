@@ -60,7 +60,7 @@ function timer(alarmManager, interruptController, timerName) {
   this.getControlRegister = function() {
     var tempValue = 0;
     if (continious)
-      tempValue = tempValue | 1 << 3;
+      tempValue = tempValue | (1 << 3);
     if (isEnabled)
       tempValue = tempValue | 1;
     return tempValue;
