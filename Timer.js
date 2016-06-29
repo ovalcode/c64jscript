@@ -36,7 +36,7 @@ function timer(alarmManager, interruptController, timerName) {
   }
 
   this.setTimerLow = function(low) {
-    timerHigh = low;
+    timerLow = low;
   }
 
   this.getTimerHigh = function() {
