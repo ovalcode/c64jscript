@@ -30,53 +30,7 @@ function memory(allDownloadedCallback, keyboard, timerA, timerB, interruptContro
   }
 
 
-//------------------------------------------------------------------------
 
-var oReqBasic = new XMLHttpRequest();
-oReqBasic.open("GET", "basic.bin", true);
-oReqBasic.responseType = "arraybuffer";
-
-oReqBasic.onload = function (oEvent) {
-  var arrayBuffer = oReqBasic.response; // Note: not oReq.responseText
-  if (arrayBuffer) {
-    basicRom = new Uint8Array(arrayBuffer);
-    downloadCompleted();
-  }
-};
-
-oReqBasic.send(null);
-
-//------------------------------------------------------------------------
-
-var oReqKernal = new XMLHttpRequest();
-oReqKernal.open("GET", "kernal.bin", true);
-oReqKernal.responseType = "arraybuffer";
-
-oReqKernal.onload = function (oEvent) {
-  var arrayBuffer = oReqKernal.response; // Note: not oReq.responseText
-  if (arrayBuffer) {
-    kernalRom = new Uint8Array(arrayBuffer);
-    downloadCompleted();
-  }
-};
-
-oReqKernal.send(null);
-
-//------------------------------------------------------------------------
-
-var oReqChar = new XMLHttpRequest();
-oReqChar.open("GET", "characters.bin", true);
-oReqChar.responseType = "arraybuffer";
-
-oReqChar.onload = function (oEvent) {
-  var arrayBuffer = oReqChar.response; // Note: not oReq.responseText
-  if (arrayBuffer) {
-    charRom = new Uint8Array(arrayBuffer);
-    downloadCompleted();
-  }
-};
-
-oReqChar.send(null);
 
 
 //------------------------------------------------------------------------
@@ -135,30 +89,10 @@ oReqChar.send(null);
   }
 
   this.readMem = function (address) {
-    if ((address >= 0xa000) & (address <=0xbfff))
-      return basicRom[address & 0x1fff];
-    else if ((address >= 0xe000) & (address <=0xffff) & kernelEnabled())
-      return kernalRom[address & 0x1fff];
-    else if ((address >= 0xdc00) & (address <= 0xdcff)) {
-      return ciaRead(address);
-    } else if (address == 1) {
-      var temp = mainMem[address] & 239;
-      if (!playPressed)
-        temp = temp | 16;
-      return temp;
-    }
     return mainMem[address];
   }
 
   this.writeMem = function (address, byteval) {
-    if ((address >= 0xdc00) & (address <= 0xdcff)) {
-      ciaWrite(address, byteval);
-      return;
-    } else if (address == 1) {
-      var temp = byteval & 32;
-      temp = temp >> 5;
-      tape.setMotorOn(temp);
-    }      
     mainMem[address] = byteval;
   }
 
