@@ -134,10 +134,28 @@ const opCodeDesc =
       functionTable[0xA1] = LDA_MEM;
       functionTable[0xB1] = LDA_MEM;
 
+/*STA  Store Accumulator in Memory
 
+     A -> M                           N Z C I D V
+                                      - - - - - -
 
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      STA oper      85    2     3
+     zeropage,X    STA oper,X    95    2     4
+     absolute      STA oper      8D    3     4
+     absolute,X    STA oper,X    9D    3     5
+     absolute,Y    STA oper,Y    99    3     5
+     (indirect,X)  STA (oper,X)  81    2     6
+     (indirect),Y  STA (oper),Y  91    2     6  */
 
-
+      functionTable[0x85] = STA;
+      functionTable[0x95] = STA;
+      functionTable[0x8D] = STA;
+      functionTable[0x9D] = STA;
+      functionTable[0x99] = STA;
+      functionTable[0x81] = STA;
+      functionTable[0x91] = STA;
 
   function LDA_IMM(number) {
     acc = number;
@@ -149,6 +167,10 @@ const opCodeDesc =
      acc = localMem.readMem(address);
      zeroflag = (acc == 0) ? 1 : 0;
      negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function STA(address) {
+    localMem.writeMem(address, acc);
   }
 
 
@@ -553,32 +575,6 @@ break;
         negativeflag = ((y & 0x80) != 0) ? 1 : 0;
       break;
  
-/*STA  Store Accumulator in Memory
-
-     A -> M                           N Z C I D V
-                                      - - - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     zeropage      STA oper      85    2     3
-     zeropage,X    STA oper,X    95    2     4
-     absolute      STA oper      8D    3     4
-     absolute,X    STA oper,X    9D    3     5
-     absolute,Y    STA oper,Y    99    3     5
-     (indirect,X)  STA (oper,X)  81    2     6
-     (indirect),Y  STA (oper),Y  91    2     6  */
-
-      case 0x85:
-      case 0x95:
-      case 0x8D:
-      case 0x9D:
-      case 0x99:
-      case 0x81:
-      case 0x91:
-        localMem.writeMem(effectiveAdrress, acc);
-
-
-break;
 
 
 /*STX  Store Index X in Memory
