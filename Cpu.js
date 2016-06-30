@@ -82,6 +82,14 @@ const opCodeDesc =
 "CPX", "SBC", "", "", "CPX", "SBC", "INC", "", "INX", "SBC", "NOP", "", "CPX", "SBC", "INC", "", 
 "BEQ", "SBC", "", "", "", "SBC", "INC", "", "SED", "SBC", "", "", "", "SBC", "INC", ""];
 
+
+
+
+
+
+
+
+  var functionTable = [];
   var localMem = memory;
   var acc = 0;
   var x = 0;
@@ -99,6 +107,52 @@ const opCodeDesc =
   var interruptOcurred = 0;
   var myintSrc;
 
+
+/*LDA  Load Accumulator with Memory
+
+     M -> A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     LDA #oper     A9    2     2
+     zeropage      LDA oper      A5    2     3
+     zeropage,X    LDA oper,X    B5    2     4
+     absolute      LDA oper      AD    3     4
+     absolute,X    LDA oper,X    BD    3     4*
+     absolute,Y    LDA oper,Y    B9    3     4*
+     (indirect,X)  LDA (oper,X)  A1    2     6
+     (indirect),Y  LDA (oper),Y  B1    2     5* */
+
+      functionTable[0xa9] = LDA_IMM;
+
+      functionTable[0xA5] = LDA_MEM;
+      functionTable[0xB5] = LDA_MEM;
+      functionTable[0xAD] = LDA_MEM;
+      functionTable[0xBD] = LDA_MEM;
+      functionTable[0xB9] = LDA_MEM;
+      functionTable[0xA1] = LDA_MEM;
+      functionTable[0xB1] = LDA_MEM;
+
+
+
+
+
+
+  function LDA_IMM(number) {
+    acc = number;
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function LDA_MEM(address) {
+     acc = localMem.readMem(address);
+     zeroflag = (acc == 0) ? 1 : 0;
+     negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+
+//----------------------------------------------------------------------------------
     this.getCycleCount = function() {
       return cycleCount;
     }
@@ -218,7 +272,7 @@ const opCodeDesc =
     var tempAddress = 0;
     switch (mode)
     {
-      case ADDRESS_MODE_ACCUMULATOR: return 0; 
+      case ADDRESS_MODE_ACCUMULATOR: return -1; 
       break;
 
       case ADDRESS_MODE_ABSOLUTE: return (argbyte2 * 256 + argbyte1);
@@ -234,10 +288,10 @@ const opCodeDesc =
         return tempAddress;
       break;
 
-      case ADDRESS_MODE_IMMEDIATE: 
+      case ADDRESS_MODE_IMMEDIATE: return -1;
       break;
 
-      case ADDRESS_MODE_IMPLIED:
+      case ADDRESS_MODE_IMPLIED: return -1;
       break;
 
       case ADDRESS_MODE_INDIRECT:
@@ -424,43 +478,19 @@ const opCodeDesc =
       arg2 = localMem.readMem(pc);
       pc = pc + 1;
     }    
-
+    //change modes not working with address to return -1
     effectiveAdrress = calculateEffevtiveAdd(addressModes[opcode], arg1, arg2);
+    var funcAdd = functionTable[opcode];
+    if (effectiveAdrress == -1) {
+      funcAdd(arg1);
+    } else {
+      funcAdd(effectiveAdrress);
+    }
+    
+    return;
 
     switch (opcode)
     {
-/*LDA  Load Accumulator with Memory
-
-     M -> A                           N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     LDA #oper     A9    2     2
-     zeropage      LDA oper      A5    2     3
-     zeropage,X    LDA oper,X    B5    2     4
-     absolute      LDA oper      AD    3     4
-     absolute,X    LDA oper,X    BD    3     4*
-     absolute,Y    LDA oper,Y    B9    3     4*
-     (indirect,X)  LDA (oper,X)  A1    2     6
-     (indirect),Y  LDA (oper),Y  B1    2     5* */
-
-      case 0xa9:
-        acc = arg1;
-        zeroflag = (acc == 0) ? 1 : 0;
-        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-      break;
-      case 0xA5:
-      case 0xB5:
-      case 0xAD:
-      case 0xBD:
-      case 0xB9:
-      case 0xA1:
-      case 0xB1:
-        acc = localMem.readMem(effectiveAdrress);
-        zeroflag = (acc == 0) ? 1 : 0;
-        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-      break;
 
 /*LDX  Load Index X with Memory
 
