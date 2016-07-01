@@ -94,7 +94,7 @@ const opCodeDesc =
   var acc = 0;
   var x = 0;
   var y = 0;
-  var pc = 0x400;
+  var pc = 0x0;
   var sp = 0xff;
   var zeroflag = 0;
   var negativeflag = 0;
@@ -193,8 +193,9 @@ const opCodeDesc =
     }
 
     this.reset = function () {
-      pc = localMem.readMem(0xfffc);
-      pc = pc + localMem.readMem(0xfffd) * 256;
+      pc = 0;
+      //pc = localMem.readMem(0xfffc);
+      //pc = pc + localMem.readMem(0xfffd) * 256;
     }
 
 

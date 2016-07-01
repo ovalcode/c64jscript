@@ -1,7 +1,7 @@
 function memory(allDownloadedCallback, keyboard, timerA, timerB, interruptController,tape)
 
 {
-  var mainMem = new Uint8Array(65536);
+  var mainMem = new Uint8Array ([0xa9, 0x20, 0x85, 0x08, 0, 0, 0, 0, 0, 0]);
   mainMem[1] = 3;
   var basicRom = new Uint8Array(8192);
   var kernalRom = new Uint8Array(8192);
