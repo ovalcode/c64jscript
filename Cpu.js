@@ -134,6 +134,52 @@ const opCodeDesc =
       functionTable[0xA1] = LDA_MEM;
       functionTable[0xB1] = LDA_MEM;
 
+
+/*LDX  Load Index X with Memory
+
+     M -> X                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     LDX #oper     A2    2     2
+     zeropage      LDX oper      A6    2     3
+     zeropage,Y    LDX oper,Y    B6    2     4
+     absolute      LDX oper      AE    3     4
+     absolute,Y    LDX oper,Y    BE    3     4**/
+
+      functionTable[0xA2] = LDX_IMM;
+      functionTable[0xA6] = LDX_MEM;
+      functionTable[0xB6] = LDX_MEM;
+      functionTable[0xAE] = LDX_MEM;
+      functionTable[0xBE] = LDX_MEM;
+
+
+
+
+
+
+/*LDY  Load Index Y with Memory
+
+     M -> Y                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     LDY #oper     A0    2     2
+     zeropage      LDY oper      A4    2     3
+     zeropage,X    LDY oper,X    B4    2     4
+     absolute      LDY oper      AC    3     4
+     absolute,X    LDY oper,X    BC    3     4*/
+
+
+      functionTable[0xA0] = LDY_IMM;
+
+      functionTable[0xA4] = LDY_MEM;
+      functionTable[0xB4] = LDY_MEM;
+      functionTable[0xAC] = LDY_MEM;
+      functionTable[0xBC] = LDY_MEM;
+
 /*STA  Store Accumulator in Memory
 
      A -> M                           N Z C I D V
@@ -157,6 +203,44 @@ const opCodeDesc =
       functionTable[0x81] = STA;
       functionTable[0x91] = STA;
 
+
+/*STX  Store Index X in Memory
+
+     X -> M                           N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      STX oper      86    2     3
+     zeropage,Y    STX oper,Y    96    2     4
+     absolute      STX oper      8E    3     4  */
+
+      functionTable[0x86] = STX;
+      functionTable[0x96] = STX
+      functionTable[0x8E] = STX;
+
+
+
+
+
+/*STY  Sore Index Y in Memory
+
+     Y -> M                           N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      STY oper      84    2     3
+     zeropage,X    STY oper,X    94    2     4
+     absolute      STY oper      8C    3     4  */
+
+      functionTable[0x84] = STY;
+      functionTable[0x94] = STY;
+      functionTable[0x8C] = STY;
+
+
+
+
   function LDA_IMM(number) {
     acc = number;
     zeroflag = (acc == 0) ? 1 : 0;
@@ -169,11 +253,42 @@ const opCodeDesc =
      negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
   }
 
+  function LDX_IMM(number) {
+    x = number;
+    zeroflag = (x == 0) ? 1 : 0;
+    negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+  }
+
+
+  function LDX_MEM(address) {
+    x = localMem.readMem(address);
+    zeroflag = (x == 0) ? 1 : 0;
+    negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+  }
+
+  function LDY_IMM(number) {
+    y = number;
+    zeroflag = (y == 0) ? 1 : 0;
+    negativeflag = ((y & 0x80) != 0) ? 1 : 0;
+  }
+
+  function LDY_MEM(address) {
+    y = localMem.readMem(address);
+    zeroflag = (y == 0) ? 1 : 0;
+    negativeflag = ((y & 0x80) != 0) ? 1 : 0;
+  }
+
   function STA(address) {
     localMem.writeMem(address, acc);
   }
 
+  function STX(address) { 
+    localMem.writeMem(address, x);
+  }
 
+  function STY(address) {
+    localMem.writeMem(effectiveAdrress, y);
+  }
 //----------------------------------------------------------------------------------
     this.getCycleCount = function() {
       return cycleCount;
@@ -515,104 +630,9 @@ const opCodeDesc =
     switch (opcode)
     {
 
-/*LDX  Load Index X with Memory
-
-     M -> X                           N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     LDX #oper     A2    2     2
-     zeropage      LDX oper      A6    2     3
-     zeropage,Y    LDX oper,Y    B6    2     4
-     absolute      LDX oper      AE    3     4
-     absolute,Y    LDX oper,Y    BE    3     4**/
-
-      case 0xA2:
-        x = arg1;
-        zeroflag = (x == 0) ? 1 : 0;
-        negativeflag = ((x & 0x80) != 0) ? 1 : 0;
-      break;
-
-      case 0xA6:
-      case 0xB6:
-      case 0xAE:
-      case 0xBE:
-        x = localMem.readMem(effectiveAdrress);
-        zeroflag = (x == 0) ? 1 : 0;
-        negativeflag = ((x & 0x80) != 0) ? 1 : 0;
-
-
-break;
-
-
-
-/*LDY  Load Index Y with Memory
-
-     M -> Y                           N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     LDY #oper     A0    2     2
-     zeropage      LDY oper      A4    2     3
-     zeropage,X    LDY oper,X    B4    2     4
-     absolute      LDY oper      AC    3     4
-     absolute,X    LDY oper,X    BC    3     4*/
-
-
-      case 0xA0:
-        y = arg1;
-        zeroflag = (y == 0) ? 1 : 0;
-        negativeflag = ((y & 0x80) != 0) ? 1 : 0;
-      break;
-
-      case 0xA4:
-      case 0xB4:
-      case 0xAC:
-      case 0xBC:
-        y = localMem.readMem(effectiveAdrress);
-        zeroflag = (y == 0) ? 1 : 0;
-        negativeflag = ((y & 0x80) != 0) ? 1 : 0;
-      break;
  
 
 
-/*STX  Store Index X in Memory
-
-     X -> M                           N Z C I D V
-                                      - - - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     zeropage      STX oper      86    2     3
-     zeropage,Y    STX oper,Y    96    2     4
-     absolute      STX oper      8E    3     4  */
-
-      case 0x86:
-      case 0x96:
-      case 0x8E:
-
-        localMem.writeMem(effectiveAdrress, x);
-
-
-break;
-/*STY  Sore Index Y in Memory
-
-     Y -> M                           N Z C I D V
-                                      - - - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     zeropage      STY oper      84    2     3
-     zeropage,X    STY oper,X    94    2     4
-     absolute      STY oper      8C    3     4  */
-
-      case 0x84:
-      case 0x94:
-      case 0x8C:
-        localMem.writeMem(effectiveAdrress, y);
-break;
 
 /*ADC  Add Memory to Accumulator with Carry
 
