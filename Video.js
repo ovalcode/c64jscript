@@ -90,9 +90,90 @@ function video(mycanvas, mem, cpu) {
     }
   }
 
+  function drawTextModeNormal(charPos) {
+    var screenCode = localMem.readMem(1024 + charPos);
+    var currentLine = localMem.readCharRom((screenCode << 3) + ((cycleline - 42) & 7));
+    var textColor = localMem.readMem(0xd800 + charPos);
+    var backgroundColor = localMem.readMem(0xd021);
+    var currentCol = 0;
+    for (currentCol = 0; currentCol < 8; currentCol++) {
+      var pixelSet = (currentLine & 0x80) == 0x80;
+      if (pixelSet) {
+        imgData.data[posInCanvas + 0] = colors[textColor][0];
+        imgData.data[posInCanvas + 1] = colors[textColor][1];
+        imgData.data[posInCanvas + 2] = colors[textColor][2];
+        imgData.data[posInCanvas + 3] = 255;
+      } else {
+        imgData.data[posInCanvas + 0] = colors[backgroundColor][0];
+        imgData.data[posInCanvas + 1] = colors[backgroundColor][1];
+        imgData.data[posInCanvas + 2] = colors[backgroundColor][2];
+        imgData.data[posInCanvas + 3] = 255;
+      }
+      currentLine = currentLine << 1;
+      posInCanvas = posInCanvas + 4;
+   }
 
+  }
+
+  function drawBitmapModeMultiColor(charPos) {
+    var currentLine = localMem.readMem(8192+(charPos << 3) + ((cycleline - 42) & 7));
+    var textColor = localMem.readMem(0xd800 + charPos);
+    var backgroundColor = localMem.readMem(0xd021);
+    var color1 = (localMem.readMem(1024 + charPos) & 0xf0) >> 4;
+    var color2 = localMem.readMem(1024 + charPos) & 0xf;
+    var color3 = localMem.readMem(0xd800 + charPos) & 0xf;
+    var colorArray = [backgroundColor, color1, color2, color3];
+    var pixPair = 0;
+    for (pixPair = 0; pixPair < 4; pixPair = pixPair + 2) {
+      var colorValue = (currentLine >> 6) & 3;
+      imgData.data[posInCanvas + 0] = colors[colorArray[colorValue]][0];
+      imgData.data[posInCanvas + 1] = colors[colorArray[colorValue]][1];
+      imgData.data[posInCanvas + 2] = colors[colorArray[colorValue]][2];
+      imgData.data[posInCanvas + 3] = 255;
+      imgData.data[posInCanvas + 4] = colors[colorArray[colorValue]][0];
+      imgData.data[posInCanvas + 5] = colors[colorArray[colorValue]][1];
+      imgData.data[posInCanvas + 6] = colors[colorArray[colorValue]][2];
+      imgData.data[posInCanvas + 7] = 255;
+
+      currentLine = currentLine << 2;
+      posInCanvas = posInCanvas + 8;
+   }
+
+  }
+
+
+// charPosInMem + cycleInLine - 5 -> when reading screen code
+//d011 bit 5 -> bitmap mode
+//d016 bit 4 -> multicolor mode
   function drawCharline() {
-    var screenCode = localMem.readMem(1024 + charPosInMem + cycleInLine - 5);
+    var bitmapMode = ((localMem.readMem(0xd011) & 0x20) != 0) ? 1 : 0;
+    var multicolorMode = ((localMem.readMem(0xd016) & 0x10) != 0) ? 1 : 0;
+    var screenMode = (multicolorMode << 1) | bitmapMode;
+    switch (screenMode) {
+      //text mode, normal
+      case 0:
+        drawTextModeNormal(charPosInMem + cycleInLine - 5);
+      break;
+
+      //bitmap mode, normal
+      case 1:
+      break;
+      
+      //text mode, multi color
+      case 2:
+      break;
+
+      //bitmap mode, multi color
+      case 3:
+        drawBitmapModeMultiColor(charPosInMem + cycleInLine - 5);
+      break;
+    }
+
+
+
+
+
+    /*var screenCode = localMem.readMem(1024 + charPosInMem + cycleInLine - 5);
     var currentLine = localMem.readCharRom((screenCode << 3) + ((cycleline - 42) & 7));
     var textColor = localMem.readMem(0xd800 + charPosInMem + cycleInLine - 5);
     var backgroundColor = localMem.readMem(0xd021);
@@ -111,7 +192,7 @@ function video(mycanvas, mem, cpu) {
       }
       currentLine = currentLine << 1;
       posInCanvas = posInCanvas + 4;
-   }
+   }*/
   }
 
   function fillBorderColor() {
