@@ -238,6 +238,59 @@ const opCodeDesc =
       functionTable[0x94] = STY;
       functionTable[0x8C] = STY;
 
+/*ADC  Add Memory to Accumulator with Carry
+
+     A + M + C -> A, C                N Z C I D V
+                                      + + + - - +
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     ADC #oper     69    2     2
+     zeropage      ADC oper      65    2     3
+     zeropage,X    ADC oper,X    75    2     4
+     absolute      ADC oper      6D    3     4
+     absolute,X    ADC oper,X    7D    3     4*
+     absolute,Y    ADC oper,Y    79    3     4*
+     (indirect,X)  ADC (oper,X)  61    2     6
+     (indirect),Y  ADC (oper),Y  71    2     5* */
+
+      functionTable[0x69] = ADC_IMM;
+
+      functionTable[0x65] = ADC_MEM;
+      functionTable[0x75] = ADC_MEM;
+      functionTable[0x6D] = ADC_MEM;
+      functionTable[0x7D] = ADC_MEM;
+      functionTable[0x79] = ADC_MEM;
+      functionTable[0x61] = ADC_MEM;
+      functionTable[0x71] = ADC_MEM;
+
+
+/*SBC  Subtract Memory from Accumulator with Borrow
+
+     A - M - C -> A                   N Z C I D V
+                                      + + + - - +
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     SBC #oper     E9    2     2
+     zeropage      SBC oper      E5    2     3
+     zeropage,X    SBC oper,X    F5    2     4
+     absolute      SBC oper      ED    3     4
+     absolute,X    SBC oper,X    FD    3     4*
+     absolute,Y    SBC oper,Y    F9    3     4*
+     (indirect,X)  SBC (oper,X)  E1    2     6
+     (indirect),Y  SBC (oper),Y  F1    2     5*  */
+
+      functionTable[0xE9] = SBC_IMM;
+
+      functionTable[0xE5] = SBC_MEM;
+      functionTable[0xF5] = SBC_MEM;
+      functionTable[0xED] = SBC_MEM;
+      functionTable[0xFD] = SBC_MEM;
+      functionTable[0xF9] = SBC_MEM;
+      functionTable[0xE1] = SBC_MEM;
+      functionTable[0xF1] = SBC_MEM;
+
 
 
 
@@ -289,6 +342,47 @@ const opCodeDesc =
   function STY(address) {
     localMem.writeMem(effectiveAdrress, y);
   }
+
+  function ADC_IMM(number) {
+    if (decimalflag == 0) {
+      acc = ADC (acc, number);
+      zeroflag = (acc == 0) ? 1 : 0;
+      negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+    } else {
+      acc = adcDecimal(number);
+    }
+  }
+
+  function ADC_MEM (address) {
+        if (decimalflag == 0) {
+          acc = ADC (acc, localMem.readMem(address));
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        } else {
+          acc = adcDecimal(localMem.readMem(address));
+        }
+   }
+
+   function SBC_IMM (number) {
+        if (decimalflag == 0) {
+          acc = SBC (acc, number);
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        } else {
+          acc = sbcDecimal(number);
+        }
+   }
+
+  function SBC_MEM(address) {
+        if (decimalflag == 0) {
+          acc = SBC (acc, localMem.readMem(address));
+          zeroflag = (acc == 0) ? 1 : 0;
+          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+        } else {
+          acc = sbcDecimal(localMem.readMem(address));
+        }
+   }
+
 //----------------------------------------------------------------------------------
     this.getCycleCount = function() {
       return cycleCount;
@@ -634,87 +728,6 @@ const opCodeDesc =
 
 
 
-/*ADC  Add Memory to Accumulator with Carry
-
-     A + M + C -> A, C                N Z C I D V
-                                      + + + - - +
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     ADC #oper     69    2     2
-     zeropage      ADC oper      65    2     3
-     zeropage,X    ADC oper,X    75    2     4
-     absolute      ADC oper      6D    3     4
-     absolute,X    ADC oper,X    7D    3     4*
-     absolute,Y    ADC oper,Y    79    3     4*
-     (indirect,X)  ADC (oper,X)  61    2     6
-     (indirect),Y  ADC (oper),Y  71    2     5* */
-
-      case 0x69:
-        if (decimalflag == 0) {
-          acc = ADC (acc, arg1);
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        } else {
-          acc = adcDecimal(arg1);
-        }
-      break;
-      case 0x65:
-      case 0x75:
-      case 0x6D:
-      case 0x7D:
-      case 0x79:
-      case 0x61:
-      case 0x71:
-        if (decimalflag == 0) {
-          acc = ADC (acc, localMem.readMem(effectiveAdrress));
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        } else {
-          acc = adcDecimal(localMem.readMem(effectiveAdrress));
-        }
-      break;
-
-/*SBC  Subtract Memory from Accumulator with Borrow
-
-     A - M - C -> A                   N Z C I D V
-                                      + + + - - +
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     SBC #oper     E9    2     2
-     zeropage      SBC oper      E5    2     3
-     zeropage,X    SBC oper,X    F5    2     4
-     absolute      SBC oper      ED    3     4
-     absolute,X    SBC oper,X    FD    3     4*
-     absolute,Y    SBC oper,Y    F9    3     4*
-     (indirect,X)  SBC (oper,X)  E1    2     6
-     (indirect),Y  SBC (oper),Y  F1    2     5*  */
-
-      case 0xE9:
-        if (decimalflag == 0) {
-          acc = SBC (acc, arg1);
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        } else {
-          acc = sbcDecimal(arg1);
-        }
-      break;
-      case 0xE5:
-      case 0xF5:
-      case 0xED:
-      case 0xFD:
-      case 0xF9:
-      case 0xE1:
-      case 0xF1:
-        if (decimalflag == 0) {
-          acc = SBC (acc, localMem.readMem(effectiveAdrress));
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        } else {
-          acc = sbcDecimal(localMem.readMem(effectiveAdrress));
-        }
-      break;
 
 /*INC  Increment Memory by One
 
