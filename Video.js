@@ -116,15 +116,15 @@ function video(mycanvas, mem, cpu) {
   }
 
   function drawBitmapModeMultiColor(charPos) {
-    var currentLine = localMem.readMem(8192+(charPos << 3) + ((cycleline - 42) & 7));
+    var currentLine = localMem.readMem(0xe000+(charPos << 3) + ((cycleline - 42) & 7));
     var textColor = localMem.readMem(0xd800 + charPos);
     var backgroundColor = localMem.readMem(0xd021);
-    var color1 = (localMem.readMem(1024 + charPos) & 0xf0) >> 4;
-    var color2 = localMem.readMem(1024 + charPos) & 0xf;
+    var color1 = (localMem.readMem(49152 + charPos) & 0xf0) >> 4;
+    var color2 = localMem.readMem(49152 + charPos) & 0xf;
     var color3 = localMem.readMem(0xd800 + charPos) & 0xf;
     var colorArray = [backgroundColor, color1, color2, color3];
     var pixPair = 0;
-    for (pixPair = 0; pixPair < 4; pixPair = pixPair + 2) {
+    for (pixPair = 0; pixPair < 4; pixPair++) {
       var colorValue = (currentLine >> 6) & 3;
       imgData.data[posInCanvas + 0] = colors[colorArray[colorValue]][0];
       imgData.data[posInCanvas + 1] = colors[colorArray[colorValue]][1];
