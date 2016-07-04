@@ -291,6 +291,87 @@ const opCodeDesc =
       functionTable[0xE1] = SBC_MEM;
       functionTable[0xF1] = SBC_MEM;
 
+/*INC  Increment Memory by One
+
+     M + 1 -> M                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      INC oper      E6    2     5
+     zeropage,X    INC oper,X    F6    2     6
+     absolut      INC oper      EE    3     6
+     absolute,X    INC oper,X    FE    3     7 */
+ 
+      functionTable[0xE6] = INC;
+      functionTable[0xF6] = INC;
+      functionTable[0xEE] = INC;
+      functionTable[0xFE] = INC;
+
+
+/*INX  Increment Index X by One
+
+     X + 1 -> X                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       INX           E8    1     2*/
+ 
+      functionTable[0xE8] = INX;
+
+
+/*INY  Increment Index Y by One
+
+     Y + 1 -> Y                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       INY           C8    1     2*/
+ 
+      functionTable[0xC8] = INY;
+
+
+/*DEC  Decrement Memory by One
+
+     M - 1 -> M                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      DEC oper      C6    2     5
+     zeropage,X    DEC oper,X    D6    2     6
+     absolute      DEC oper      CE    3     3
+     absolute,X    DEC oper,X    DE    3     7 */
+ 
+      functionTable[0xC6] = DEC;
+      functionTable[0xD6] = DEC;
+      functionTable[0xCE] = DEC;
+      functionTable[0xDE] = DEC;
+
+
+/*DEX  Decrement Index X by One
+
+     X - 1 -> X                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       DEC           CA    1     2*/
+ 
+      functionTable[0xCA] = DEX;
+
+/*DEY  Decrement Index Y by One
+
+     Y - 1 -> Y                       N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       DEC           88    1     2*/
+ 
+      functionTable[0x88] = DEY;
 
 
 
@@ -382,6 +463,46 @@ const opCodeDesc =
           acc = sbcDecimal(localMem.readMem(address));
         }
    }
+
+   function INC(address) {
+     var tempVal = localMem.readMem(address);
+     tempVal++; tempVal = tempVal & 0xff;        
+     localMem.writeMem(address, tempVal);
+     zeroflag = (tempVal == 0) ? 1 : 0;
+     negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+   }
+
+  function INX() {
+    x++; x = x & 0xff;        
+    zeroflag = (x == 0) ? 1 : 0;
+    negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+  }
+
+  function INY() {
+    y++; y = y & 0xff;        
+    zeroflag = (y == 0) ? 1 : 0;
+    negativeflag = ((y & 0x80) != 0) ? 1 : 0;
+  }
+
+  function DEC(address) {
+    var tempVal = localMem.readMem(address);
+    tempVal--; tempVal = tempVal & 0xff;        
+    localMem.writeMem(address, tempVal);
+    zeroflag = (tempVal == 0) ? 1 : 0;
+    negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+  }
+
+  function DEX() {
+    x--; x = x & 0xff;        
+    zeroflag = (x == 0) ? 1 : 0;
+    negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+  }
+
+  function DEY() {
+    y--; y = y & 0xff;        
+    zeroflag = (y == 0) ? 1 : 0;
+    negativeflag = ((y & 0x80) != 0) ? 1 : 0;
+  }
 
 //----------------------------------------------------------------------------------
     this.getCycleCount = function() {
@@ -729,115 +850,6 @@ const opCodeDesc =
 
 
 
-/*INC  Increment Memory by One
-
-     M + 1 -> M                       N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     zeropage      INC oper      E6    2     5
-     zeropage,X    INC oper,X    F6    2     6
-     absolut      INC oper      EE    3     6
-     absolute,X    INC oper,X    FE    3     7 */
- 
-      case 0xE6:
-      case 0xF6:
-      case 0xEE:
-      case 0xFE:
-        var tempVal = localMem.readMem(effectiveAdrress);
-        tempVal++; tempVal = tempVal & 0xff;        
-        localMem.writeMem(effectiveAdrress, tempVal);
-        zeroflag = (tempVal == 0) ? 1 : 0;
-        negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
-      break;
-
-/*INX  Increment Index X by One
-
-     X + 1 -> X                       N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       INX           E8    1     2*/
- 
-      case 0xE8:
-
-        x++; x = x & 0xff;        
-        zeroflag = (x == 0) ? 1 : 0;
-        negativeflag = ((x & 0x80) != 0) ? 1 : 0;
-      break;
-
-/*INY  Increment Index Y by One
-
-     Y + 1 -> Y                       N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       INY           C8    1     2*/
- 
-      case 0xC8:
-
-        y++; y = y & 0xff;        
-        zeroflag = (y == 0) ? 1 : 0;
-        negativeflag = ((y & 0x80) != 0) ? 1 : 0;
-      break;
-
-/*DEC  Decrement Memory by One
-
-     M - 1 -> M                       N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     zeropage      DEC oper      C6    2     5
-     zeropage,X    DEC oper,X    D6    2     6
-     absolute      DEC oper      CE    3     3
-     absolute,X    DEC oper,X    DE    3     7 */
- 
-      case 0xC6:
-      case 0xD6:
-      case 0xCE:
-      case 0xDE:
-        var tempVal = localMem.readMem(effectiveAdrress);
-        tempVal--; tempVal = tempVal & 0xff;        
-        localMem.writeMem(effectiveAdrress, tempVal);
-        zeroflag = (tempVal == 0) ? 1 : 0;
-        negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
-      break;
-
-/*DEX  Decrement Index X by One
-
-     X - 1 -> X                       N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       DEC           CA    1     2*/
- 
-      case 0xCA:
-
-        x--; x = x & 0xff;        
-        zeroflag = (x == 0) ? 1 : 0;
-        negativeflag = ((x & 0x80) != 0) ? 1 : 0;
-      break;
-
-/*DEY  Decrement Index Y by One
-
-     Y - 1 -> Y                       N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       DEC           88    1     2*/
- 
-      case 0x88:
-
-        y--; y = y & 0xff;        
-        zeroflag = (y == 0) ? 1 : 0;
-        negativeflag = ((y & 0x80) != 0) ? 1 : 0;
-      break;
 
 /*CMP  Compare Memory with Accumulator
 
