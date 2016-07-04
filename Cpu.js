@@ -494,10 +494,11 @@ const opCodeDesc =
      --------------------------------------------
      relative      BMI oper      30    2     2** */
 
-      case 0x30:
-        if (negativeflag == 1)
-          pc = effectiveAdrress;
-      break;
+      functionTable[0x30] = function (address) {
+                              if (negativeflag == 1)
+                                pc = address;
+                            };
+       
 
 
 /*BNE  Branch on Result not Zero
@@ -509,10 +510,10 @@ const opCodeDesc =
      --------------------------------------------
      relative      BNE oper      D0    2     2**/
 
-      case 0xD0:
-        if (zeroflag == 0)
-          pc = effectiveAdrress;
-      break;
+      functionTable[0xD0] = function (address) {
+                              if (zeroflag == 0)
+                                pc = address;
+                            };
 
 
 
@@ -525,10 +526,10 @@ const opCodeDesc =
      --------------------------------------------
      relative      BPL oper      10    2     2** */
 
-      case 0x10:
-        if (negativeflag == 0)
-          pc = effectiveAdrress;
-      break;
+      functionTable[0x10] = function (address) {
+                              if (negativeflag == 0)
+                                pc = address;
+                            };
 
 
 
@@ -541,10 +542,11 @@ const opCodeDesc =
      --------------------------------------------
      relative      BVC oper      50    2     2** */
 
-      case 0x50:
-        if (overflowflag == 0)
-          pc = effectiveAdrress;
-      break;
+      functionTable[0x50] = function (address) {
+                              if (overflowflag == 0)
+                                pc = address;
+                            };
+
 
 /*BVS  Branch on Overflow Set
 
@@ -555,10 +557,10 @@ const opCodeDesc =
      --------------------------------------------
      relative      BVC oper      70    2     2** */
 
-      case 0x70:
-        if (overflowflag == 1)
-          pc = effectiveAdrress;
-      break;
+      functionTable[0x70] = function (address) {
+                              if (overflowflag == 1)
+                                pc = address;
+                            };
 
 /*JMP  Jump to New Location
 
@@ -570,11 +572,13 @@ const opCodeDesc =
      absolute      JMP oper      4C    3     3
      indirect      JMP (oper)    6C    3     5 */
 
-      case 0x4C:
+      functionTable[0x4C] = function (address) {
+                              pc = address;
+                            };
 
-      case 0x6C:
-          pc = effectiveAdrress;
-      break;
+      functionTable[0x6C] = function (address) {
+                              pc = address;
+                            };
 
 
   function LDA_IMM(number) {
