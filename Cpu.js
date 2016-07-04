@@ -373,6 +373,70 @@ const opCodeDesc =
  
       functionTable[0x88] = DEY;
 
+/*CMP  Compare Memory with Accumulator
+
+     A - M                            N Z C I D V
+                                    + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     CMP #oper     C9    2     2
+     zeropage      CMP oper      C5    2     3
+     zeropage,X    CMP oper,X    D5    2     4
+     absolute      CMP oper      CD    3     4
+     absolute,X    CMP oper,X    DD    3     4*
+     absolute,Y    CMP oper,Y    D9    3     4*
+     (indirect,X)  CMP (oper,X)  C1    2     6
+     (indirect),Y  CMP (oper),Y  D1    2     5* */
+
+      functionTable[0xc9] = CMP_IMM;
+
+
+      functionTable[0xc5] = CMP_MEM;
+      functionTable[0xd5] = CMP_MEM;
+      functionTable[0xcd] = CMP_MEM;
+      functionTable[0xdD] = CMP_MEM;
+      functionTable[0xd9] = CMP_MEM;
+      functionTable[0xc1] = CMP_MEM;
+      functionTable[0xd1] = CMP_MEM;
+
+
+
+/*CPX  Compare Memory and Index X
+
+     X - M                            N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     CPX #oper     E0    2     2
+     zeropage      CPX oper      E4    2     3
+     absolute      CPX oper      EC    3     4
+*/
+
+      functionTable[0xe0] = CPX_IMM;
+
+
+      functionTable[0xe4] = CPX_MEM; 
+      functionTable[0xec] = CPX_MEM;
+
+
+
+/*CPY  Compare Memory and Index Y
+
+     Y - M                            N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     CPY #oper     C0    2     2
+     zeropage      CPY oper      C4    2     3
+     absolute      CPY oper      CC    3     4*/
+
+      functionTable[0xc0] = CPY_IMM;
+
+      functionTable[0xc4] = CPY_MEM;
+      functionTable[0xcc] = CPY_MEM;
 
 
   function LDA_IMM(number) {
@@ -502,6 +566,30 @@ const opCodeDesc =
     y--; y = y & 0xff;        
     zeroflag = (y == 0) ? 1 : 0;
     negativeflag = ((y & 0x80) != 0) ? 1 : 0;
+  }
+
+  function CMP_IMM(number) {
+        CMP(acc, number);
+  }
+
+  function CMP_MEM(address) {
+    CMP(acc, localMem.readMem(address));
+  }
+
+  function CPX_IMM(number) {
+    CMP(x, arg1);
+  }
+
+  function CPX_MEM(address) {
+    CMP(x, localMem.readMem(address));
+  }
+
+  function CPY_IMM(number) {
+    CMP(y, arg1);
+  }
+
+  function CPY_MEM(address) {
+    CMP(y, localMem.readMem(address));
   }
 
 //----------------------------------------------------------------------------------
@@ -851,73 +939,6 @@ const opCodeDesc =
 
 
 
-/*CMP  Compare Memory with Accumulator
-
-     A - M                            N Z C I D V
-                                    + + + - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     CMP #oper     C9    2     2
-     zeropage      CMP oper      C5    2     3
-     zeropage,X    CMP oper,X    D5    2     4
-     absolute      CMP oper      CD    3     4
-     absolute,X    CMP oper,X    DD    3     4*
-     absolute,Y    CMP oper,Y    D9    3     4*
-     (indirect,X)  CMP (oper,X)  C1    2     6
-     (indirect),Y  CMP (oper),Y  D1    2     5* */
-
-      case 0xc9:
-        CMP(acc, arg1);
-      break;
-      case 0xc5:
-      case 0xd5:
-      case 0xcd:
-      case 0xdD:
-      case 0xd9:
-      case 0xc1:
-      case 0xd1:
-        CMP(acc, localMem.readMem(effectiveAdrress));
-      break;
-
-/*CPX  Compare Memory and Index X
-
-     X - M                            N Z C I D V
-                                      + + + - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     CPX #oper     E0    2     2
-     zeropage      CPX oper      E4    2     3
-     absolute      CPX oper      EC    3     4
-*/
-
-      case 0xe0:
-        CMP(x, arg1);
-      break;
-      case 0xe4:
-      case 0xec:
-        CMP(x, localMem.readMem(effectiveAdrress));
-      break;
-
-/*CPY  Compare Memory and Index Y
-
-     Y - M                            N Z C I D V
-                                      + + + - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     CPY #oper     C0    2     2
-     zeropage      CPY oper      C4    2     3
-     absolute      CPY oper      CC    3     4*/
-
-      case 0xc0:
-        CMP(y, arg1);
-      break;
-      case 0xc4:
-      case 0xcc:
-        CMP(y, localMem.readMem(effectiveAdrress));
-      break;
 
 /*BCC  Branch on Carry Clear
 
