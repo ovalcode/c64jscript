@@ -671,6 +671,90 @@ const opCodeDesc =
                               pc = tempVal + 1;
                             };
 
+/*AND  AND Memory with Accumulator
+
+     A AND M -> A                     N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     AND #oper     29    2     2
+     zeropage      AND oper      25    2     3
+     zeropage,X    AND oper,X    35    2     4
+     absolute      AND oper      2D    3     4
+     absolute,X    AND oper,X    3D    3     4*
+     absolute,Y    AND oper,Y    39    3     4*
+     (indirect,X)  AND (oper,X)  21    2     6
+     (indirect),Y  AND (oper),Y  31    2     5* */
+
+
+      functionTable[0x29] = AND_IMM;
+
+      functionTable[0x25] = AND_MEM;
+      functionTable[0x35] = AND_MEM;
+      functionTable[0x2D] = AND_MEM;
+      functionTable[0x3D] = AND_MEM;
+      functionTable[0x39] = AND_MEM;
+      functionTable[0x21] = AND_MEM;
+      functionTable[0x31] = AND_MEM;
+
+
+
+
+/*EOR  Exclusive-OR Memory with Accumulator
+
+     A EOR M -> A                     N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     EOR #oper     49    2     2
+     zeropage      EOR oper      45    2     3
+     zeropage,X    EOR oper,X    55    2     4
+     absolute      EOR oper      4D    3     4
+     absolute,X    EOR oper,X    5D    3     4*
+     absolute,Y    EOR oper,Y    59    3     4*
+     (indirect,X)  EOR (oper,X)  41    2     6
+     (indirect),Y  EOR (oper),Y  51    2     5* */
+
+      functionTable[0x49] = EOR_IMM;  
+
+      functionTable[0x45] = EOR_MEM; 
+      functionTable[0x55] = EOR_MEM;
+      functionTable[0x4D] = EOR_MEM;
+      functionTable[0x5D] = EOR_MEM;
+      functionTable[0x59] = EOR_MEM;
+      functionTable[0x41] = EOR_MEM;
+      functionTable[0x51] = EOR_MEM;
+
+
+/*ORA  OR Memory with Accumulator
+
+     A OR M -> A                      N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     immediate     ORA #oper     09    2     2
+     zeropage      ORA oper      05    2     3
+     zeropage,X    ORA oper,X    15    2     4
+     absolute      ORA oper      0D    3     4
+     absolute,X    ORA oper,X    1D    3     4*
+     absolute,Y    ORA oper,Y    19    3     4*
+     (indirect,X)  ORA (oper,X)  01    2     6
+     (indirect),Y  ORA (oper),Y  11    2     5* */
+
+      functionTable[0x09] = ORA_IMM;
+
+      functionTable[0x05] = ORA_MEM;
+      functionTable[0x15] = ORA_MEM;
+      functionTable[0x0D] = ORA_MEM;
+      functionTable[0x1D] = ORA_MEM;
+      functionTable[0x19] = ORA_MEM;
+      functionTable[0x01] = ORA_MEM;
+      functionTable[0x11] = ORA_MEM;
+
+
 
   function LDA_IMM(number) {
     acc = number;
@@ -823,6 +907,43 @@ const opCodeDesc =
 
   function CPY_MEM(address) {
     CMP(y, localMem.readMem(address));
+  }
+
+
+  function AND_IMM (number) {
+    acc = acc & number;
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function AND_MEM (address) {
+    acc = acc & localMem.readMem(address);
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function EOR_IMM (number) {
+    acc = acc ^ number;
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function EOR_MEM (address) {
+    acc = acc ^ localMem.readMem(address);
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function ORA_IMM (number) {
+    acc = acc | number;
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function ORA_MEM (address) {
+    acc = acc | localMem.readMem(address);
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
   }
 
 //----------------------------------------------------------------------------------
@@ -1175,102 +1296,6 @@ const opCodeDesc =
 
 
 
-/*AND  AND Memory with Accumulator
-
-     A AND M -> A                     N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     AND #oper     29    2     2
-     zeropage      AND oper      25    2     3
-     zeropage,X    AND oper,X    35    2     4
-     absolute      AND oper      2D    3     4
-     absolute,X    AND oper,X    3D    3     4*
-     absolute,Y    AND oper,Y    39    3     4*
-     (indirect,X)  AND (oper,X)  21    2     6
-     (indirect),Y  AND (oper),Y  31    2     5* */
-
-
-      case 0x29:  acc = acc & arg1;
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        break;
-      case 0x25:
-      case 0x35:
-      case 0x2D:
-      case 0x3D:
-      case 0x39:
-      case 0x21:
-      case 0x31: acc = acc & localMem.readMem(effectiveAdrress);
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        break;
-
-
-
-/*EOR  Exclusive-OR Memory with Accumulator
-
-     A EOR M -> A                     N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     EOR #oper     49    2     2
-     zeropage      EOR oper      45    2     3
-     zeropage,X    EOR oper,X    55    2     4
-     absolute      EOR oper      4D    3     4
-     absolute,X    EOR oper,X    5D    3     4*
-     absolute,Y    EOR oper,Y    59    3     4*
-     (indirect,X)  EOR (oper,X)  41    2     6
-     (indirect),Y  EOR (oper),Y  51    2     5* */
-
-      case 0x49:  acc = acc ^ arg1;
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        break;
-      case 0x45:
-      case 0x55:
-      case 0x4D:
-      case 0x5D:
-      case 0x59:
-      case 0x41:
-      case 0x51: acc = acc ^ localMem.readMem(effectiveAdrress);
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        break;
-
-
-/*ORA  OR Memory with Accumulator
-
-     A OR M -> A                      N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     immediate     ORA #oper     09    2     2
-     zeropage      ORA oper      05    2     3
-     zeropage,X    ORA oper,X    15    2     4
-     absolute      ORA oper      0D    3     4
-     absolute,X    ORA oper,X    1D    3     4*
-     absolute,Y    ORA oper,Y    19    3     4*
-     (indirect,X)  ORA (oper,X)  01    2     6
-     (indirect),Y  ORA (oper),Y  11    2     5* */
-
-      case 0x09:  acc = acc | arg1;
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        break;
-      case 0x05:
-      case 0x15:
-      case 0x0D:
-      case 0x1D:
-      case 0x19:
-      case 0x01:
-      case 0x11: acc = acc | localMem.readMem(effectiveAdrress);
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        break;
 
 /*CLC  Clear Carry Flag
 
