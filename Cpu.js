@@ -580,6 +580,97 @@ const opCodeDesc =
                               pc = address;
                             };
 
+/*PHA  Push Accumulator on Stack
+
+     push A                           N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PHA           48    1     3 */
+
+      functionTable[0x48] = function () {
+                              Push(acc);
+                            };
+
+
+/*PHP  Push Processor Status on Stack
+
+     push SR                          N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PHP           08    1     3 */
+
+      functionTable[0x08] = function () {
+                              Push(getStatusFlagsAsByte());
+                            };
+
+
+/*PLA  Pull Accumulator from Stack
+
+     pull A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PLA           68    1     4 */
+
+      functionTable[0x68] = function () {
+                              acc = Pop();
+                              zeroflag = (acc == 0) ? 1 : 0;
+                              negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+                            };
+
+
+
+/*PLP  Pull Processor Status from Stack
+
+     pull SR                          N Z C I D V
+                                      from stack
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       PLP           28    1     4 */
+
+      functionTable[0x28] = function() {
+                              setStatusFlagsAsByte(Pop());
+                            };
+
+
+/*JSR  Jump to New Location Saving Return Address
+
+     push (PC+2),                     N Z C I D V
+     (PC+1) -&gt; PCL                    - - - - - -
+     (PC+2) -&gt; PCH
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     absolute      JSR oper      20    3     6 */
+
+      functionTable[0x20] = function (address) {
+                              var tempVal = pc - 1;
+                              Push((tempVal >> 8) & 0xff);
+                              Push(tempVal & 0xff);
+                              pc = address;
+                             };
+
+/*RTS  Return from Subroutine
+
+     pull PC, PC+1 -&gt; PC              N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       RTS           60    1     6 */
+
+      functionTable[0x60] = function() {
+                              var tempVal = Pop();
+                              tempVal = tempVal + Pop() * 256;
+                              pc = tempVal + 1;
+                            };
+
 
   function LDA_IMM(number) {
     acc = number;
@@ -1083,95 +1174,6 @@ const opCodeDesc =
 
 
 
-/*PHA  Push Accumulator on Stack
-
-     push A                           N Z C I D V
-                                      - - - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       PHA           48    1     3 */
-
-      case 0x48:
-        Push(acc);
-      break;
-
-
-/*PHP  Push Processor Status on Stack
-
-     push SR                          N Z C I D V
-                                      - - - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       PHP           08    1     3 */
-
-      case 0x08:
-        Push(getStatusFlagsAsByte());
-      break;
-
-
-/*PLA  Pull Accumulator from Stack
-
-     pull A                           N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       PLA           68    1     4 */
-
-      case 0x68:
-        acc = Pop();
-        zeroflag = (acc == 0) ? 1 : 0;
-        negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-      break;
-
-
-
-/*PLP  Pull Processor Status from Stack
-
-     pull SR                          N Z C I D V
-                                      from stack
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       PLP           28    1     4 */
-
-      case 0x28:
-        setStatusFlagsAsByte(Pop());
-      break;
-
-/*JSR  Jump to New Location Saving Return Address
-
-     push (PC+2),                     N Z C I D V
-     (PC+1) -&gt; PCL                    - - - - - -
-     (PC+2) -&gt; PCH
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     absolute      JSR oper      20    3     6 */
-
-      case 0x20:
-        var tempVal = pc - 1;
-        Push((tempVal >> 8) & 0xff);
-        Push(tempVal & 0xff);
-        pc = effectiveAdrress;
-      break;
-
-/*RTS  Return from Subroutine
-
-     pull PC, PC+1 -&gt; PC              N Z C I D V
-                                      - - - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       RTS           60    1     6 */
-
-      case 0x60:
-        var tempVal = Pop();
-        tempVal = tempVal + Pop() * 256;
-        pc = tempVal + 1;
-      break;
 
 /*AND  AND Memory with Accumulator
 
