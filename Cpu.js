@@ -919,6 +919,113 @@ const opCodeDesc =
                               negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
                             }
 
+/*BIT  Test Bits in Memory with Accumulator
+
+     bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
+     the zeroflag is set to the result of operand AND accumulator.
+
+     A AND M, M7 -> N, M6 -> V        N Z C I D V
+                                     M7 + - - - M6
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     zeropage      BIT oper      24    2     3
+     absolute      BIT oper      2C    3     4 */
+
+      functionTable[0x24] = BIT_MEM;  
+      functionTable[0x2C] = BIT_MEM;
+
+
+
+/*ASL  Shift Left One Bit (Memory or Accumulator)
+
+     C <- [76543210] <- 0             N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   ASL A         0A    1     2
+     zeropage      ASL oper      06    2     5
+     zeropage,X    ASL oper,X    16    2     6
+     absolute      ASL oper      0E    3     6
+     absolute,X    ASL oper,X    1E    3     7 */
+
+      functionTable[0x0A] = ASL_ACC;
+
+      functionTable[0x06] = ASL_MEM;
+      functionTable[0x16] = ASL_MEM;
+      functionTable[0x0E] = ASL_MEM;
+      functionTable[0x1E] = ASL_MEM;
+
+
+
+
+/*LSR  Shift One Bit Right (Memory or Accumulator)
+
+     0 -> [76543210] -> C             N Z C I D V
+                                      - + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   LSR A         4A    1     2
+     zeropage      LSR oper      46    2     5
+     zeropage,X    LSR oper,X    56    2     6
+     absolute      LSR oper      4E    3     6
+     absolute,X    LSR oper,X    5E    3     7 */
+
+      functionTable[0x4A] = LSR_ACC;  
+
+      functionTable[0x46] = LSR_MEM;
+      functionTable[0x56] = LSR_MEM; 
+      functionTable[0x4E] = LSR_MEM;
+      functionTable[0x5E] = LSR_MEM;
+
+
+
+/*ROL  Rotate One Bit Left (Memory or Accumulator)
+
+     C <- [76543210] <- C             N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   ROL A         2A    1     2
+     zeropage      ROL oper      26    2     5
+     zeropage,X    ROL oper,X    36    2     6
+     absolute      ROL oper      2E    3     6
+     absolute,X    ROL oper,X    3E    3     7 */
+
+
+      functionTable[0x2A] = ROL_ACC;
+
+
+      functionTable[0x26] = ROL_MEM;
+      functionTable[0x36] = ROL_MEM;
+      functionTable[0x2E] = ROL_MEM; 
+      functionTable[0x3E] = ROL_MEM;
+
+
+/*ROR  Rotate One Bit Right (Memory or Accumulator)
+
+     C -> [76543210] -> C             N Z C I D V
+                                      + + + - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     accumulator   ROR A         6A    1     2
+     zeropage      ROR oper      66    2     5
+     zeropage,X    ROR oper,X    76    2     6
+     absolute      ROR oper      6E    3     6
+     absolute,X    ROR oper,X    7E    3     7 */
+
+      functionTable[0x6A] = ROR_ACC;
+
+      functionTable[0x66] = ROR_MEM;
+      functionTable[0x76] = ROR_MEM;
+      functionTable[0x6E] = ROR_MEM;
+      functionTable[0x7E] = ROR_MEM;
+
+
 
 
   function LDA_IMM(number) {
@@ -1109,6 +1216,89 @@ const opCodeDesc =
     acc = acc | localMem.readMem(address);
     zeroflag = (acc == 0) ? 1 : 0;
     negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function BIT_MEM (address) {
+    var tempVal = localMem.readMem(address);
+    negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+    overflowflag = ((tempVal & 0x40) != 0) ? 1 : 0;
+    zeroflag = ((acc & tempVal) == 0) ? 1 : 0;
+  }
+
+  function ASL_ACC () {
+    acc = acc << 1;
+    carryflag = ((acc & 0x100) != 0) ? 1 : 0;
+    acc = acc & 0xff;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+    zeroflag = (acc == 0) ? 1 : 0;
+  }
+
+  function ASL_MEM(address) {
+    var tempVal = localMem.readMem(address);
+    tempVal = tempVal << 1;
+    carryflag = ((tempVal & 0x100) != 0) ? 1 : 0;
+    tempVal = tempVal & 0xff;
+    negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+    zeroflag = (tempVal == 0) ? 1 : 0;
+    localMem.writeMem(address, tempVal);
+  }
+
+  function LSR_ACC() {
+    carryflag = ((acc & 0x1) != 0) ? 1 : 0;
+    acc = acc >> 1;
+    acc = acc & 0xff;
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = 0;
+  }
+
+  function LSR_MEM (address)
+    var tempVal = localMem.readMem(address);
+    carryflag = ((tempVal & 0x1) != 0) ? 1 : 0;
+    tempVal = tempVal >> 1;
+    tempVal = tempVal & 0xff;
+    zeroflag = (tempVal == 0) ? 1 : 0;
+    localMem.writeMem(address, tempVal);
+    negativeflag = 0;
+  }
+
+  function ROL_ACC() {
+    acc = acc << 1;
+    acc = acc | carryflag;
+    carryflag = ((acc & 0x100) != 0) ? 1 : 0;
+    acc = acc & 0xff;
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function ROL_MEM (address) {
+    var tempVal = localMem.readMem(address);
+    tempVal = tempVal << 1;
+    tempVal = tempVal | carryflag;
+    carryflag = ((tempVal & 0x100) != 0) ? 1 : 0;
+    tempVal = tempVal & 0xff;
+    zeroflag = (tempVal == 0) ? 1 : 0;
+    negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+    localMem.writeMem(address,tempVal);
+  }
+
+  function ROR_ACC () {
+    acc = acc | (carryflag << 8);
+    carryflag = ((acc & 0x1) != 0) ? 1 : 0;
+    acc = acc >> 1;
+    acc = acc & 0xff;
+    zeroflag = (acc == 0) ? 1 : 0;
+    negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+  }
+
+  function ROR_MEM (address) {
+    var tempVal = localMem.readMem(address);
+    tempVal = tempVal | (carryflag << 8);
+    carryflag = ((tempVal & 0x1) != 0) ? 1 : 0;
+    tempVal = tempVal >> 1;
+    tempVal = tempVal & 0xff;
+    zeroflag = (tempVal == 0) ? 1 : 0;
+    negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
+    localMem.writeMem(address, tempVal);
   }
 
 //----------------------------------------------------------------------------------
@@ -1462,168 +1652,6 @@ const opCodeDesc =
 
 
 
-/*BIT  Test Bits in Memory with Accumulator
-
-     bits 7 and 6 of operand are transfered to bit 7 and 6 of SR (N,V);
-     the zeroflag is set to the result of operand AND accumulator.
-
-     A AND M, M7 -> N, M6 -> V        N Z C I D V
-                                     M7 + - - - M6
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     zeropage      BIT oper      24    2     3
-     absolute      BIT oper      2C    3     4 */
-
-      case 0x24: 
-      case 0x2C: 
-          var tempVal = localMem.readMem(effectiveAdrress);
-          negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
-          overflowflag = ((tempVal & 0x40) != 0) ? 1 : 0;
-          zeroflag = ((acc & tempVal) == 0) ? 1 : 0;
-        break;
-
-
-/*ASL  Shift Left One Bit (Memory or Accumulator)
-
-     C <- [76543210] <- 0             N Z C I D V
-                                      + + + - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     accumulator   ASL A         0A    1     2
-     zeropage      ASL oper      06    2     5
-     zeropage,X    ASL oper,X    16    2     6
-     absolute      ASL oper      0E    3     6
-     absolute,X    ASL oper,X    1E    3     7 */
-
-      case 0x0A: 
-          acc = acc << 1;
-          carryflag = ((acc & 0x100) != 0) ? 1 : 0;
-          acc = acc & 0xff;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-          zeroflag = (acc == 0) ? 1 : 0;
-         break;
-      case 0x06: 
-      case 0x16: 
-      case 0x0E: 
-      case 0x1E: 
-          var tempVal = localMem.readMem(effectiveAdrress);
-          tempVal = tempVal << 1;
-          carryflag = ((tempVal & 0x100) != 0) ? 1 : 0;
-          tempVal = tempVal & 0xff;
-          negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
-          zeroflag = (tempVal == 0) ? 1 : 0;
-          localMem.writeMem(effectiveAdrress, tempVal);
-        break;
-
-
-
-/*LSR  Shift One Bit Right (Memory or Accumulator)
-
-     0 -> [76543210] -> C             N Z C I D V
-                                      - + + - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     accumulator   LSR A         4A    1     2
-     zeropage      LSR oper      46    2     5
-     zeropage,X    LSR oper,X    56    2     6
-     absolute      LSR oper      4E    3     6
-     absolute,X    LSR oper,X    5E    3     7 */
-
-      case 0x4A: 
-          carryflag = ((acc & 0x1) != 0) ? 1 : 0;
-          acc = acc >> 1;
-          acc = acc & 0xff;
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = 0;
-        break;
-      case 0x46: 
-      case 0x56: 
-      case 0x4E: 
-      case 0x5E: 
-          var tempVal = localMem.readMem(effectiveAdrress);
-          carryflag = ((tempVal & 0x1) != 0) ? 1 : 0;
-          tempVal = tempVal >> 1;
-          tempVal = tempVal & 0xff;
-          zeroflag = (tempVal == 0) ? 1 : 0;
-          localMem.writeMem(effectiveAdrress, tempVal);
-          negativeflag = 0;
-        break;
-
-
-/*ROL  Rotate One Bit Left (Memory or Accumulator)
-
-     C <- [76543210] <- C             N Z C I D V
-                                      + + + - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     accumulator   ROL A         2A    1     2
-     zeropage      ROL oper      26    2     5
-     zeropage,X    ROL oper,X    36    2     6
-     absolute      ROL oper      2E    3     6
-     absolute,X    ROL oper,X    3E    3     7 */
-
-
-      case 0x2A: 
-          acc = acc << 1;
-          acc = acc | carryflag;
-          carryflag = ((acc & 0x100) != 0) ? 1 : 0;
-          acc = acc & 0xff;
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-      break;
-
-      case 0x26: 
-      case 0x36: 
-      case 0x2E: 
-      case 0x3E: 
-          var tempVal = localMem.readMem(effectiveAdrress);
-          tempVal = tempVal << 1;
-          tempVal = tempVal | carryflag;
-          carryflag = ((tempVal & 0x100) != 0) ? 1 : 0;
-          tempVal = tempVal & 0xff;
-          zeroflag = (tempVal == 0) ? 1 : 0;
-          negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
-          localMem.writeMem(effectiveAdrress,tempVal);
-      break;
-
-/*ROR  Rotate One Bit Right (Memory or Accumulator)
-
-     C -> [76543210] -> C             N Z C I D V
-                                      + + + - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     accumulator   ROR A         6A    1     2
-     zeropage      ROR oper      66    2     5
-     zeropage,X    ROR oper,X    76    2     6
-     absolute      ROR oper      6E    3     6
-     absolute,X    ROR oper,X    7E    3     7 */
-
-      case 0x6A: 
-          acc = acc | (carryflag << 8);
-          carryflag = ((acc & 0x1) != 0) ? 1 : 0;
-          acc = acc >> 1;
-          acc = acc & 0xff;
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-      break;
-      case 0x66: 
-      case 0x76: 
-      case 0x6E: 
-      case 0x7E: 
-          var tempVal = localMem.readMem(effectiveAdrress);
-          tempVal = tempVal | (carryflag << 8);
-          carryflag = ((tempVal & 0x1) != 0) ? 1 : 0;
-          tempVal = tempVal >> 1;
-          tempVal = tempVal & 0xff;
-          zeroflag = (tempVal == 0) ? 1 : 0;
-          negativeflag = ((tempVal & 0x80) != 0) ? 1 : 0;
-          localMem.writeMem(effectiveAdrress, tempVal);
-      break;
 
 /*NOP  No Operation
 
