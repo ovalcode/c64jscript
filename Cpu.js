@@ -1025,6 +1025,80 @@ const opCodeDesc =
       functionTable[0x6E] = ROR_MEM;
       functionTable[0x7E] = ROR_MEM;
 
+/*NOP  No Operation
+
+     ---                              N Z C I D V
+                                      - - - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       NOP           EA    1     2 */
+
+     functionTable[0xEA] = function () {
+                             return;
+                           }
+
+/*BRK  Force Break
+
+     interrupt,                       N Z C I D V
+     push PC+2, push SR               - - - 1 - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       BRK           00    1     7 */
+       
+      functionTable[0x00] = function () {
+                              var tempVal = pc + 1;
+                              Push(tempVal >> 8);
+                              Push(tempVal & 0xff);
+                              Push(getStatusFlagsAsByte());
+                              interruptflag = 1;
+                              tempVal = localMem.readMem(0xffff) * 256;
+                              tempVal = tempVal + localMem.readMem(0xfffe);
+                              pc = tempVal;
+                            }
+
+/*RTI  Return from Interrupt
+
+     pull SR, pull PC                 N Z C I D V
+                                      from stack
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       RTI           40    1     6 */
+      
+      functionTable[0x40] = function () {
+                              setStatusFlagsAsByte(Pop());
+                              var tempVal = Pop();
+                              tempVal = (Pop() << 8) + tempVal;
+                              pc = tempVal;
+                            }
+
+/*CLI  Clear Interrupt Disable Bit
+
+     0 -> I                           N Z C I D V
+                                      - - - 0 - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLI           58    1     2 */
+
+      functionTable[0x58] = function () {
+                              interruptflag = 0;        
+                            }
+
+/*SEI  Set Interrupt Disable Status
+
+     1 -> I                           N Z C I D V
+                                      - - - 1 - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       SEI           78    1     2 */
+
+      functionTable[0x78] = function () {
+                              interruptflag = 1;                
+                            }
 
 
 
@@ -1639,97 +1713,5 @@ const opCodeDesc =
     
     return;
 
-    switch (opcode)
-    {
-
- 
-
-
-
-
-
-
-
-
-
-
-/*NOP  No Operation
-
-     ---                              N Z C I D V
-                                      - - - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       NOP           EA    1     2 */
-
-     case 0xEA:
-     break;
-
-/*BRK  Force Break
-
-     interrupt,                       N Z C I D V
-     push PC+2, push SR               - - - 1 - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       BRK           00    1     7 */
-       
-      case 0x00:
-        var tempVal = pc + 1;
-        Push(tempVal >> 8);
-        Push(tempVal & 0xff);
-        Push(getStatusFlagsAsByte());
-        interruptflag = 1;
-        tempVal = localMem.readMem(0xffff) * 256;
-        tempVal = tempVal + localMem.readMem(0xfffe);
-        pc = tempVal;
-      break;
-
-/*RTI  Return from Interrupt
-
-     pull SR, pull PC                 N Z C I D V
-                                      from stack
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       RTI           40    1     6 */
-      
-      case 0x40: 
-        setStatusFlagsAsByte(Pop());
-        var tempVal = Pop();
-        tempVal = (Pop() << 8) + tempVal;
-        pc = tempVal;
-      break;
-
-/*CLI  Clear Interrupt Disable Bit
-
-     0 -> I                           N Z C I D V
-                                      - - - 0 - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       CLI           58    1     2 */
-
-      case 0x58: 
-        interruptflag = 0;        
-      break;
-
-/*SEI  Set Interrupt Disable Status
-
-     1 -> I                           N Z C I D V
-                                      - - - 1 - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       SEI           78    1     2 */
-
-      case 0x78: 
-        interruptflag = 1;                
-      break;
-
-      default: alert("Op code "+opcode+" not implemented. PC = "+pc.toString(16));
-    }
-    if ((pc > 8000) & (pc < 10000))
-      alert("Error");
   }
 } 
