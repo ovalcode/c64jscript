@@ -39,7 +39,7 @@ From Location:
 <br/>
 <textarea id="diss" name="diss" rows="11" cols="60"></textarea>
 <button id="btnStep" onclick="step()">Step</button>
-<button id="btnRun" disabled = "true" onclick="startEm()">Run</button>
+<button id="btnRun" onclick="startEm()">Run</button>
 <button id="btnStop" disabled = "true" onclick="stopEm()">Stop</button>
 <br/>
 Break at: <input type="text" id="breakpoint">
@@ -114,24 +114,25 @@ Break at: <input type="text" id="breakpoint">
           return;
         //myvideo.updateCanvas();
         //var targetCycleCount =  mycpu.getCycleCount() + 20000;
-        while (true) { 
+        var i;
+        for (i = 0; i < 1000000; i++) { 
           mycpu.step();
-          myAlarmManager.processAlarms();
+          //myAlarmManager.processAlarms();
           //if (mycpu.getCycleCount() > 6000000)            
           //  mymem.setSimulateKeypress();
           //var blankingPeriodLow = targetCycleCount - 100;
-          if (myvideo.getCurrentLine() > 284) { 
-            mymem.writeMem(0xD012, 0);
-          } else  {
-            mymem.writeMem(0xD012, 1);
-          }
+          //if (myvideo.getCurrentLine() > 284) { 
+          //  mymem.writeMem(0xD012, 0);
+          //} else  {
+            //mymem.writeMem(0xD012, 1);
+         // }
           if (mycpu.getPc() == breakpoint) {
             stopEm();
             return;
           }
-          var framefinished = myvideo.processpixels();
-          if (framefinished)
-            return;
+          //var framefinished = myvideo.processpixels();
+          //if (framefinished)
+          //  return;
         }
         //mycpu.setInterrupt();
 

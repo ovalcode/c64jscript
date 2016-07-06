@@ -94,7 +94,7 @@ const opCodeDesc =
   var acc = 0;
   var x = 0;
   var y = 0;
-  var pc = 0x0;
+  var pc = 0x400;
   var sp = 0xff;
   var zeroflag = 0;
   var negativeflag = 0;
@@ -1148,7 +1148,7 @@ const opCodeDesc =
   }
 
   function STY(address) {
-    localMem.writeMem(effectiveAdrress, y);
+    localMem.writeMem(address, y);
   }
 
   function ADC_IMM(number) {
@@ -1240,7 +1240,7 @@ const opCodeDesc =
   }
 
   function CPX_IMM(number) {
-    CMP(x, arg1);
+    CMP(x, number);
   }
 
   function CPX_MEM(address) {
@@ -1248,7 +1248,7 @@ const opCodeDesc =
   }
 
   function CPY_IMM(number) {
-    CMP(y, arg1);
+    CMP(y, number);
   }
 
   function CPY_MEM(address) {
@@ -1325,7 +1325,7 @@ const opCodeDesc =
     negativeflag = 0;
   }
 
-  function LSR_MEM (address)
+  function LSR_MEM (address) {
     var tempVal = localMem.readMem(address);
     carryflag = ((tempVal & 0x1) != 0) ? 1 : 0;
     tempVal = tempVal >> 1;
