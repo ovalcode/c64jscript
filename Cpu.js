@@ -754,6 +754,171 @@ const opCodeDesc =
       functionTable[0x01] = ORA_MEM;
       functionTable[0x11] = ORA_MEM;
 
+/*CLC  Clear Carry Flag
+
+     0 -> C                           N Z C I D V
+                                      - - 0 - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLC           18    1     2 */
+
+      functionTable[0x18] = function() {
+                              carryflag = 0;
+                            }
+
+
+
+/*CLV  Clear Overflow Flag
+
+     0 -> V                           N Z C I D V
+                                      - - - - - 0
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLV           B8    1     2 */
+
+      functionTable[0xB8] = function () { 
+                              overflowflag = 0;
+                            }
+
+/*CLD  Clear Decimal Mode
+
+     0 -> D                           N Z C I D V
+                                      - - - - 0 -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       CLD           D8    1     2 */
+
+       functionTable[0xD8] = function () {
+                               decimalflag = 0;
+                             }
+
+/*SEC  Set Carry Flag
+
+     1 -> C                           N Z C I D V
+                                      - - 1 - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       SEC           38    1     2 */
+
+      functionTable[0x38] = function () {
+                              carryflag = 1;
+                            }
+
+/*SED  Set Decimal Flag
+
+     1 -> D                           N Z C I D V
+                                      - - - - 1 - 
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       SED           F8    1     2  */
+
+      functionTable[0xF8] = function () {
+                              decimalflag = 1;
+                            }
+
+
+/*TAX  Transfer Accumulator to Index X
+
+     A -> X                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TAX           AA    1     2 */
+
+      functionTable[0xAA] = function () { 
+                              x = acc;
+                              zeroflag = (x == 0) ? 1 : 0;
+                              negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+                            }
+
+
+/*TAY  Transfer Accumulator to Index Y
+
+     A -> Y                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TAY           A8    1     2 */
+
+      functionTable[0xA8] = function () { 
+                              y = acc;
+                              zeroflag = (y == 0) ? 1 : 0;
+                              negativeflag = ((y & 0x80) != 0) ? 1 : 0;
+                            }
+
+
+/*TSX  Transfer Stack Pointer to Index X
+
+     SP -> X                          N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TSX           BA    1     2 */
+
+      functionTable[0xBA] = function () { 
+                              x = sp;
+                              zeroflag = (x == 0) ? 1 : 0;
+                              negativeflag = ((x & 0x80) != 0) ? 1 : 0;
+                            }
+
+
+
+/*TXA  Transfer Index X to Accumulator
+
+     X -> A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TXA           8A    1     2 */
+
+      functionTable[0x8A] = function () {
+                              acc = x;
+                              zeroflag = (acc == 0) ? 1 : 0;
+                              negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+                            }
+
+
+/*TXS  Transfer Index X to Stack Register
+
+     X -> SP                          N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TXS           9A    1     2 */
+
+      functionTable[0x9A] = function () { 
+                              sp = x;
+                              //zeroflag = (sp == 0) ? 1 : 0;
+                              //negativeflag = ((sp & 0x80) != 0) ? 1 : 0;
+                            }
+
+
+
+/*TYA  Transfer Index Y to Accumulator
+
+     Y -> A                           N Z C I D V
+                                      + + - - - -
+
+     addressing    assembler    opc  bytes  cyles
+     --------------------------------------------
+     implied       TYA           98    1     2 */
+
+      functionTable[0x98] = function () { 
+                              acc = y;
+                              zeroflag = (acc == 0) ? 1 : 0;
+                              negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
+                            }
+
 
 
   function LDA_IMM(number) {
@@ -1296,171 +1461,6 @@ const opCodeDesc =
 
 
 
-
-/*CLC  Clear Carry Flag
-
-     0 -> C                           N Z C I D V
-                                      - - 0 - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       CLC           18    1     2 */
-
-      case 0x18: 
-          carryflag = 0;
-        break;
-
-
-
-/*CLV  Clear Overflow Flag
-
-     0 -> V                           N Z C I D V
-                                      - - - - - 0
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       CLV           B8    1     2 */
-
-      case 0xB8: 
-          overflowflag = 0;
-        break;
-
-/*CLD  Clear Decimal Mode
-
-     0 -> D                           N Z C I D V
-                                      - - - - 0 -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       CLD           D8    1     2 */
-
-       case 0xD8:
-         decimalflag = 0;
-       break;
-
-/*SEC  Set Carry Flag
-
-     1 -> C                           N Z C I D V
-                                      - - 1 - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       SEC           38    1     2 */
-
-      case 0x38: 
-          carryflag = 1;
-        break;
-
-/*SED  Set Decimal Flag
-
-     1 -> D                           N Z C I D V
-                                      - - - - 1 - 
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       SED           F8    1     2  */
-
-      case 0xF8:
-        decimalflag = 1;
-      break;
-
-
-/*TAX  Transfer Accumulator to Index X
-
-     A -> X                           N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       TAX           AA    1     2 */
-
-      case 0xAA: 
-          x = acc;
-          zeroflag = (x == 0) ? 1 : 0;
-          negativeflag = ((x & 0x80) != 0) ? 1 : 0;
-        break;
-
-
-/*TAY  Transfer Accumulator to Index Y
-
-     A -> Y                           N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       TAY           A8    1     2 */
-
-      case 0xA8: 
-          y = acc;
-          zeroflag = (y == 0) ? 1 : 0;
-          negativeflag = ((y & 0x80) != 0) ? 1 : 0;
-        break;
-
-
-/*TSX  Transfer Stack Pointer to Index X
-
-     SP -> X                          N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       TSX           BA    1     2 */
-
-      case 0xBA: 
-          x = sp;
-          zeroflag = (x == 0) ? 1 : 0;
-          negativeflag = ((x & 0x80) != 0) ? 1 : 0;
-        break;
-
-
-
-/*TXA  Transfer Index X to Accumulator
-
-     X -> A                           N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       TXA           8A    1     2 */
-
-      case 0x8A: 
-          acc = x;
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        break;
-
-
-/*TXS  Transfer Index X to Stack Register
-
-     X -> SP                          N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       TXS           9A    1     2 */
-
-      case 0x9A: 
-          sp = x;
-          //zeroflag = (sp == 0) ? 1 : 0;
-          //negativeflag = ((sp & 0x80) != 0) ? 1 : 0;
-        break;
-
-
-
-/*TYA  Transfer Index Y to Accumulator
-
-     Y -> A                           N Z C I D V
-                                      + + - - - -
-
-     addressing    assembler    opc  bytes  cyles
-     --------------------------------------------
-     implied       TYA           98    1     2 */
-
-      case 0x98: 
-          acc = y;
-          zeroflag = (acc == 0) ? 1 : 0;
-          negativeflag = ((acc & 0x80) != 0) ? 1 : 0;
-        break;
 
 /*BIT  Test Bits in Memory with Accumulator
 
