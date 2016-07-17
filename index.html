@@ -51,6 +51,7 @@ Break at: <input type="text" id="breakpoint">
       mycpu.setInterruptController(myInterruptController);
 
       var myvideo = new video(document.getElementById("screen"), mymem, mycpu);
+      mymem.setVideo(myvideo);
       var mytimer;
       var running = false;
       var breakpoint = 0;

@@ -6,6 +6,8 @@ function video(mycanvas, mem, cpu) {
   var cycleInLine = 0;
   var cycleline = 0;
   var charPosInMem = 0;  
+  var registers = new Uint8Array(0x2e);
+  var colorRAM = new Uint8Array(1000);
   var posInCanvas = 0;
   var imgData = ctx.createImageData(400, 284);
 
@@ -29,6 +31,29 @@ function video(mycanvas, mem, cpu) {
 
   this.getCurrentLine = function() {
     return cycleline;
+  }
+
+  this.writeReg = function (number, value) {
+    registers[number] = value;
+  }
+
+  this.readReg = function (number) {
+    if (number == 0x11) {
+      var bit8 = (cycleline & 0x100) >> 1;
+      var temp = (registers[number] & 0x7f) | bit8;
+      return temp;
+    } else if (number == 0x12) {
+      return (cycleline & 0xff);    } else {
+      return registers[number];
+    }
+  }
+
+  this.writeColorRAM = function(number, value) {
+    colorRAM[number] = value;
+  }
+
+  this.readColorRAM = function(number) {
+    return colorRAM[number];
   }
 
   this.processpixels = function() {
@@ -66,7 +91,7 @@ function video(mycanvas, mem, cpu) {
   }
 
   function displayEnabled() {
-    return ((localMem.readMem(0xd011) & 0x10) != 0)
+    return ((registers[0x11] & 0x10) != 0)
   }
 
   function updateCharPos() {
@@ -83,8 +108,8 @@ function video(mycanvas, mem, cpu) {
   }
 
   function drawCharline() {
-    var bitmapMode = ((localMem.readMem(0xd011) & 0x20) != 0) ? 1 : 0;
-    var multicolorMode = ((localMem.readMem(0xd016) & 0x10) != 0) ? 1 : 0;
+    var bitmapMode = ((registers[0x11] & 0x20) != 0) ? 1 : 0;
+    var multicolorMode = ((registers[0x16] & 0x10) != 0) ? 1 : 0;
     var screenMode = (multicolorMode << 1) | bitmapMode;
     switch (screenMode) {
       //text mode, normal
@@ -108,10 +133,14 @@ function video(mycanvas, mem, cpu) {
   }
 
   function drawTextModeNormal(charPos) {
-    var screenCode = localMem.readMem(1024 + charPos);
-    var currentLine = localMem.readCharRom((screenCode << 3) + ((cycleline - 42) & 7));
-    var textColor = localMem.readMem(0xd800 + charPos) & 0xf;
-    var backgroundColor = localMem.readMem(0xd021) & 0xf;
+    var baseCharAdd = (registers[0x18] >> 1) & 7;    
+    baseCharAdd = baseCharAdd << 11;    
+    var baseScreenAdd = (registers[0x18] >> 4) & 0xf;    
+    baseScreenAdd = baseScreenAdd << 10;    
+    var screenCode = localMem.vicRead(baseScreenAdd + charPos);
+    var currentLine = localMem.vicRead(baseCharAdd + (screenCode << 3) + ((cycleline - 42) & 7));
+    var textColor = colorRAM[charPos] & 0xf;
+    var backgroundColor = registers[0x21] & 0xf;
     var currentCol = 0;
     for (currentCol = 0; currentCol < 8; currentCol++) {
       var pixelSet = (currentLine & 0x80) == 0x80;
@@ -133,12 +162,16 @@ function video(mycanvas, mem, cpu) {
   }
 
   function drawBitmapModeMultiColor(charPos) {
-    var currentLine = localMem.readMem(0xe000+(charPos << 3) + ((cycleline - 42) & 7));
-    var textColor = localMem.readMem(0xd800 + charPos);
-    var backgroundColor = localMem.readMem(0xd021);
-    var color1 = (localMem.readMem(49152 + charPos) & 0xf0) >> 4;
-    var color2 = localMem.readMem(49152 + charPos) & 0xf;
-    var color3 = localMem.readMem(0xd800 + charPos) & 0xf;
+    var baseCharAdd = (registers[0x18] >> 1) & 7;    
+    baseCharAdd = baseCharAdd << 11;    
+    var baseScreenAdd = (registers[0x18] >> 4) & 0xf;    
+    baseScreenAdd = baseScreenAdd << 10;    
+    var currentLine = localMem.vicRead(baseCharAdd+(charPos << 3) + ((cycleline - 42) & 7));
+    var textColor = colorRAM[charPos];
+    var backgroundColor = registers[0x21];
+    var color1 = (localMem.vicRead(baseScreenAdd + charPos) & 0xf0) >> 4;
+    var color2 = localMem.vicRead(baseScreenAdd + charPos) & 0xf;
+    var color3 = colorRAM[charPos] & 0xf;
     var colorArray = [backgroundColor, color1, color2, color3];
     var pixPair = 0;
     for (pixPair = 0; pixPair < 4; pixPair++) {
@@ -160,7 +193,7 @@ function video(mycanvas, mem, cpu) {
 
 
   function fillBorderColor() {
-    var borderColor = localMem.readMem(0xd020) & 0xf;
+    var borderColor = registers[0x20] & 0xf;
     var i;
     for (i = 0; i < 8; i++ ) {
       imgData.data[posInCanvas + 0] = colors[borderColor][0];
