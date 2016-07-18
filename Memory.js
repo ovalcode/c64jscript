@@ -92,7 +92,9 @@ oReqChar.send(null);
   }
 
   function ciaRead(address) {
-    if (address == 0xdc01) {
+    if (address == 0xdc00) {
+      return 0xff;
+    } else if (address == 0xdc01) {
       return keyboardInstance.getColumnByte(mainMem[0xdc00]);
     } else if (address == 0xdc04) {
       return mytimerA.getTimerLow();
