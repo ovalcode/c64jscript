@@ -123,6 +123,7 @@ function video(mycanvas, mem, cpu) {
       
       //text mode, multi color
       case 2:
+        drawTextModeMultiColor(charPosInMem + cycleInLine - 5);
       break;
 
       //bitmap mode, multi color
@@ -159,6 +160,38 @@ function video(mycanvas, mem, cpu) {
       posInCanvas = posInCanvas + 4;
    }
 
+  }
+
+  function drawTextModeMultiColor(charPos) {
+    var baseCharAdd = (registers[0x18] >> 1) & 7;
+    baseCharAdd = baseCharAdd << 11;
+    var baseScreenAdd = (registers[0x18] >> 4) & 0xf;
+    baseScreenAdd = baseScreenAdd << 10;
+    var screenCode = localMem.vicRead(baseScreenAdd + charPos);
+    var currentLine = localMem.vicRead(baseCharAdd + (screenCode << 3) + ((cycleline - 42) & 7));
+    var textColor = colorRAM[charPos] & 0xf;
+    if ((textColor & 8) == 0)
+      return drawTextModeNormal(charPos);
+    var backgroundColor = registers[0x21];
+    var color1 = registers[0x22];
+    var color2 = registers[0x23];
+    var color3 = textColor;
+    var colorArray = [backgroundColor, color1, color2, color3];
+    var pixPair = 0;
+    for (pixPair = 0; pixPair < 4; pixPair++) {
+      var colorValue = (currentLine >> 6) & 3;
+      imgData.data[posInCanvas + 0] = colors[colorArray[colorValue]][0];
+      imgData.data[posInCanvas + 1] = colors[colorArray[colorValue]][1];
+      imgData.data[posInCanvas + 2] = colors[colorArray[colorValue]][2];
+      imgData.data[posInCanvas + 3] = 255;
+      imgData.data[posInCanvas + 4] = colors[colorArray[colorValue]][0];
+      imgData.data[posInCanvas + 5] = colors[colorArray[colorValue]][1];
+      imgData.data[posInCanvas + 6] = colors[colorArray[colorValue]][2];
+      imgData.data[posInCanvas + 7] = 255;
+
+      currentLine = currentLine << 2;
+      posInCanvas = posInCanvas + 8;
+   }
   }
 
   function drawBitmapModeMultiColor(charPos) {
