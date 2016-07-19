@@ -177,9 +177,40 @@ function keyboard() {
       case KEY_9:
         return 32;
       break;
+      default: return -1;
 
     }
     
+  }
+
+  this.getJoyStickByte = function () {
+    var result = 0;
+    for (i = 0; i < keyarray.length; i++) {
+      var temp = keyarray[i];
+      switch (temp) {
+        //left
+        case 37:
+          result = result | 4;
+        break;
+        //right
+        case 39:
+          result = result | 8;
+        break;
+        //up
+        case 38:
+          result = result | 1;
+        break;
+        //down
+        case 40:
+          result = result | 2;
+        break;
+        //fire
+        case 45:
+          result = result | 16;
+        break;
+      }
+    }
+    return result;
   }
 
   this.getColumnByte = function(rowByte) {
@@ -190,7 +221,9 @@ function keyboard() {
     for (i = 0; i < keyarray.length; i++) {
       var scanCode = getScanCode(keyarray[i]);
       var rowNum = (scanCode & 0x38) >> 3;
-      rowArray[rowNum] = rowArray[rowNum] | (1 << (scanCode & 7));
+      if (scanCode != -1) {
+        rowArray[rowNum] = rowArray[rowNum] | (1 << (scanCode & 7));
+      }
     }
     var resultByte = 0;
     for (i = 0; i < 8; i++) {
