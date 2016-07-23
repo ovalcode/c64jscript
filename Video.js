@@ -33,8 +33,18 @@ function video(mycanvas, mem, cpu) {
     return cycleline;
   }
 
+  this.vicIntOccured = function() {
+    return registers[0x19] >= 128;
+  }
+
   this.writeReg = function (number, value) {
-    registers[number] = value;
+    if (number == 0x19) {
+      var temp = ~value & registers[number];
+      temp = temp & 0xf;
+      registers[number] = (temp > 0) ? (temp | 128) : 0;
+    } else {
+      registers[number] = value;
+    }
   }
 
   this.readReg = function (number) {
@@ -74,6 +84,9 @@ function video(mycanvas, mem, cpu) {
       if (cycleInLine > 63) {
         cycleInLine = 0;
         cycleline++;
+        if (targetRasterReached() & rasterIntEnabled()) {
+          registers[0x19] = registers[0x19] | 1 | 128;
+        }
         updateCharPos();
       }
       if (cycleline > 311) {
@@ -88,6 +101,18 @@ function video(mycanvas, mem, cpu) {
 
     }
       return false;
+  }
+
+  function rasterIntEnabled() {
+    return (registers[0x1a] & 1) == 1;
+  }
+
+  function targetRasterReached() {
+    var temp = registers[0x11] & 0x80;
+    temp = temp << 1;
+    temp = temp | (registers[0x12]);
+    var tempCurrentLine = (cycleline == 312) ? 0 : cycleline;
+    return (temp == tempCurrentLine);
   }
 
   function displayEnabled() {

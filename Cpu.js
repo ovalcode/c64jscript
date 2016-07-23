@@ -98,6 +98,7 @@ const opCodeDesc =
   var cycleCount = 0;
   var interruptOcurred = 0;
   var myInterruptController;
+  var myvideo;
 
   this.setInterruptController = function (interruptController) {
     myInterruptController = interruptController;
@@ -111,6 +112,9 @@ const opCodeDesc =
       interruptOcurred = 1;
     }
 
+  this.setVideo = function (video) {
+    myvideo = video;
+  }
 
     this.getPc = function () {
       return pc;
@@ -394,7 +398,7 @@ const opCodeDesc =
 
 
   this.step = function () {
-    if ((myInterruptController.getCpuInterruptOcurred()) & (interruptflag == 0)) {
+    if ((myInterruptController.getCpuInterruptOcurred() | myvideo.vicIntOccured()) & (interruptflag == 0)) {
         interruptOcurred = 0;
         Push(pc >> 8);
         Push(pc & 0xff);
