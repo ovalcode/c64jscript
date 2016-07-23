@@ -95,11 +95,11 @@ Break at: <input type="text" id="breakpoint">
           //if (mycpu.getCycleCount() > 6000000)            
           //  mymem.setSimulateKeypress();
           //var blankingPeriodLow = targetCycleCount - 100;
-          if (myvideo.getCurrentLine() > 284) {
-            mymem.writeMem(0xD012, 0);
-          } else  {
-            mymem.writeMem(0xD012, 1);
-          }
+          //if (myvideo.getCurrentLine() > 284) {
+          //  mymem.writeMem(0xD012, 0);
+          //} else  {
+          //  mymem.writeMem(0xD012, 1);
+          //}
           if (mycpu.getPc() == breakpoint) {
             stopEm();
             return;
