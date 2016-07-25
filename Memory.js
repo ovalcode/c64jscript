@@ -148,6 +148,12 @@ oReqChar.send(null);
     return (temp2 != 0) & (temp != 0);  
   }
 
+  function basicEnabled() {
+    temp = mainMem[1] & 3;
+    return (temp == 3);
+  }
+
+
   this.vicRead = function(address) {
     var topBits = IOUnclaimed[0xd00] & 3;
     topBits = 3 - topBits;
@@ -189,7 +195,7 @@ oReqChar.send(null);
   }
 
   this.readMem = function (address) {
-    if ((address >= 0xa000) & (address <=0xbfff))
+    if ((address >= 0xa000) & (address <=0xbfff) & basicEnabled())
       return basicRom[address & 0x1fff];
     else if ((address >= 0xe000) & (address <=0xffff) & kernelEnabled())
       return kernalRom[address & 0x1fff];
