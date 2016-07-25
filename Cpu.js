@@ -99,6 +99,7 @@ const opCodeDesc =
   var interruptOcurred = 0;
   var myInterruptController;
   var myvideo;
+  var allowLogging = false;
 
   this.setInterruptController = function (interruptController) {
     myInterruptController = interruptController;
@@ -125,6 +126,15 @@ const opCodeDesc =
       pc = pc + localMem.readMem(0xfffd) * 256;
     }
 
+  this.setAllowLogging = function(flag) {
+    allowLogging = flag;
+  }
+
+  function log_debug(value) {
+    if (allowLogging) {
+      console.log(value);
+    }
+  }
 
     function adcDecimal(operand) { 
     	        var l = 0; 
@@ -398,6 +408,7 @@ const opCodeDesc =
 
 
   this.step = function () {
+    log_debug(this.getDecodedStr() + "  " + this.getDebugReg());
     if ((myInterruptController.getCpuInterruptOcurred() | myvideo.vicIntOccured()) & (interruptflag == 0)) {
         interruptOcurred = 0;
         Push(pc >> 8);

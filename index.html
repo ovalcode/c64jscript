@@ -23,6 +23,7 @@
 <br/>
 <button onclick="mymem.togglePlayPresed()">Play</button>
 <br/>
+<input type="checkbox" id="allowDebug"/> Allow logging<br/>
 <textarea id="registers" name="reg" rows="1" cols="60"></textarea>
 <br/>
 <textarea id="memory" name="mem" rows="15" cols="60"></textarea>
@@ -87,6 +88,7 @@ Break at: <input type="text" id="breakpoint">
       function runBatch() {
         if (!running)
           return;
+        mycpu.setAllowLogging(document.getElementById("allowDebug").checked);
         //myvideo.updateCanvas();
         //var targetCycleCount =  mycpu.getCycleCount() + 20000;
         while (true) { 
