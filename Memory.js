@@ -1,23 +1,25 @@
 function memory(allDownloadedCallback, keyboard, timerA, timerB, interruptController,tape)
 
 {
+  var mytimerA = timerA;
+  var mytimerB = timerB;
+  var myinterruptController = interruptController;
+  var mytape = tape;
   var mainMem = new Uint8Array(65536);
-  mainMem[1] = 3;
+  mainMem[1] = 0xff;
+  var IOUnclaimed = new Uint8Array(4096);
   var basicRom = new Uint8Array(8192);
   var kernalRom = new Uint8Array(8192);
   var charRom = new Uint8Array(4192);
   var outstandingDownloads = 3;
   var simulateKeypress = false;
   var keyboardInstance = keyboard;
-  var mytimerA = timerA;
-  var mytimerB = timerB;
-  var myinterruptController = interruptController;
-  var mytape = tape;
   var playPressed = false;
 
   this.togglePlayPresed = function() {
     playPressed = !playPressed;
   }
+
 
   function downloadCompleted() {
     outstandingDownloads--;
@@ -27,6 +29,10 @@ function memory(allDownloadedCallback, keyboard, timerA, timerB, interruptContro
 
   this.setSimulateKeypress = function () {
     simulateKeypress = true;
+  }
+
+  this.setVideo = function(video) {
+    myVideo = video;
   }
 
 
@@ -86,7 +92,9 @@ oReqChar.send(null);
   }
 
   function ciaRead(address) {
-    if (address == 0xdc01) {
+    if (address == 0xdc00) {
+      return (~keyboardInstance.getJoyStickByte()) & 0xff;
+    } else if (address == 0xdc01) {
       return keyboardInstance.getColumnByte(mainMem[0xdc00]);
     } else if (address == 0xdc04) {
       return mytimerA.getTimerLow();
@@ -134,13 +142,65 @@ oReqChar.send(null);
     return (temp >= 2);
   }
 
+  function IOEnabled() {    
+    var temp = mainMem[1] & 3;    
+    var temp2 = mainMem[1] & 4;    
+    return (temp2 != 0) & (temp != 0);  
+  }
+
+  function basicEnabled() {
+    temp = mainMem[1] & 3;
+    return (temp == 3);
+  }
+
+
+  this.vicRead = function(address) {
+    var topBits = IOUnclaimed[0xd00] & 3;
+    topBits = 3 - topBits;
+    var effectiveAddress = (topBits << 14) | address;
+    if ((effectiveAddress >= 0x9000) & (effectiveAddress < 0xa000)) {
+      effectiveAddress = effectiveAddress & 0xfff;
+      return charRom[effectiveAddress];
+    } else if ((effectiveAddress >= 0x1000) & (effectiveAddress < 0x2000)) {
+      effectiveAddress = effectiveAddress & 0xfff;
+      return charRom[effectiveAddress];
+    } else {
+      return mainMem[effectiveAddress];
+    }
+  }
+
+  function IORead(address) {
+    if ((address >= 0xdc00) & (address <= 0xdcff)) {
+      return ciaRead(address);
+    } else if ((address >= 0xd000) & (address <= 0xd02e)) {
+      return myVideo.readReg(address - 0xd000);
+    } else if ((address >= 0xd800) & (address <= 0xdbe8)) {
+      return myVideo.readColorRAM (address - 0xd800);
+    } else {
+      return IOUnclaimed[address - 0xd000];
+    } 
+  }
+
+  function IOWrite(address, value) {
+    if ((address >= 0xdc00) & (address <= 0xdcff)) {
+      return ciaWrite(address, value);
+    } else if ((address >= 0xd000) & (address <= 0xd02e)) {
+      return myVideo.writeReg(address - 0xd000, value);
+    } else if ((address >= 0xd800) & (address <= 0xdbe8)) {
+      return myVideo.writeColorRAM (address - 0xd800, value);
+    } else {
+      IOUnclaimed[address - 0xd000] = value;
+      return;
+    } 
+  }
+
   this.readMem = function (address) {
-    if ((address >= 0xa000) & (address <=0xbfff))
+    if ((address >= 0xa000) & (address <=0xbfff) & basicEnabled())
       return basicRom[address & 0x1fff];
     else if ((address >= 0xe000) & (address <=0xffff) & kernelEnabled())
       return kernalRom[address & 0x1fff];
-    else if ((address >= 0xdc00) & (address <= 0xdcff)) {
-      return ciaRead(address);
+    else if ((address >= 0xd000) & (address <= 0xdfff) & IOEnabled()) {
+      return IORead(address);
     } else if (address == 1) {
       var temp = mainMem[address] & 239;
       if (!playPressed)
@@ -151,14 +211,14 @@ oReqChar.send(null);
   }
 
   this.writeMem = function (address, byteval) {
-    if ((address >= 0xdc00) & (address <= 0xdcff)) {
-      ciaWrite(address, byteval);
+    if ((address >= 0xd000) & (address <= 0xdfff) & IOEnabled()) {
+      IOWrite(address, byteval);
       return;
     } else if (address == 1) {
       var temp = byteval & 32;
       temp = temp >> 5;
       tape.setMotorOn(temp);
-    }      
+    }   
     mainMem[address] = byteval;
   }
 

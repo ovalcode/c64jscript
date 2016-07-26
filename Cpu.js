@@ -97,20 +97,25 @@ const opCodeDesc =
   var breakflag = 1;
   var cycleCount = 0;
   var interruptOcurred = 0;
-  var myintSrc;
+  var myInterruptController;
+  var myvideo;
+  var allowLogging = false;
+
+  this.setInterruptController = function (interruptController) {
+    myInterruptController = interruptController;
+  }
 
     this.getCycleCount = function() {
       return cycleCount;
     }
 
-   this.setInterruptSource = function(intSrc) {
-     myintSrc = intSrc;
-   }
-
     this.setInterrupt = function () {
       interruptOcurred = 1;
     }
 
+  this.setVideo = function (video) {
+    myvideo = video;
+  }
 
     this.getPc = function () {
       return pc;
@@ -121,6 +126,15 @@ const opCodeDesc =
       pc = pc + localMem.readMem(0xfffd) * 256;
     }
 
+  this.setAllowLogging = function(flag) {
+    allowLogging = flag;
+  }
+
+  function log_debug(value) {
+    if (allowLogging) {
+      console.log(value);
+    }
+  }
 
     function adcDecimal(operand) { 
     	        var l = 0; 
@@ -394,8 +408,8 @@ const opCodeDesc =
 
 
   this.step = function () {
-    var ts = pc;
-    if ((myintSrc.getInterruptTripped()) & (interruptflag == 0)) {
+    log_debug(this.getDecodedStr() + "  " + this.getDebugReg());
+    if ((myInterruptController.getCpuInterruptOcurred() | myvideo.vicIntOccured()) & (interruptflag == 0)) {
         interruptOcurred = 0;
         Push(pc >> 8);
         Push(pc & 0xff);
@@ -1575,7 +1589,5 @@ break;
 
       default: alert("Op code "+opcode+" not implemented. PC = "+pc.toString(16));
     }
-    if ((pc > 8000) & (pc < 10000))
-      alert("Error");
   }
 } 

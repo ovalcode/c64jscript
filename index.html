@@ -6,10 +6,10 @@
     <script src="Cpu.js"></script>
     <script src="Video.js"></script>
     <script src="Keyboard.js"></script>
-    <script src="InterruptController.js"></script>
+    <script src="Tape.js"></script>
     <script src="AlarmManager.js"></script>
     <script src="Timer.js"></script>
-    <script src="Tape.js"></script>
+    <script src="InterruptController.js"></script>
   </head>
   <body onkeydown="mykeyboard.onkeydown(event)" onkeyup="mykeyboard.onkeyup(event)">
     <h1>6502 Emulator From Scratch</h1>
@@ -18,18 +18,12 @@
 
 </canvas>
 <br/>
-<table>
-  <tr>
-  <td style="background-color:white; -webkit-user-select:none" id="box1">Q</td>
-  <td>W</td>
-  </tr>
-</table>
+<input type="file" id="file" name="myfile"/>
+<button onclick="myTape.attachTape(document.getElementById('file').files[0])">Attach</button>
 <br/>
-<input type="file" id="files" name="myfile"/>
-<button onclick="attachTape()">Attach</button>
-</br>
 <button onclick="mymem.togglePlayPresed()">Play</button>
-</br>
+<br/>
+<input type="checkbox" id="allowDebug"/> Allow logging<br/>
 <textarea id="registers" name="reg" rows="1" cols="60"></textarea>
 <br/>
 <textarea id="memory" name="mem" rows="15" cols="60"></textarea>
@@ -46,41 +40,23 @@ Break at: <input type="text" id="breakpoint">
     <script language="JavaScript">
 
       var mykeyboard = new keyboard();
-
-      //timer
-      //memory
-
-      //interrupt controller
-
-      var box1 = document.getElementById('box1');
-      
-    box1.addEventListener('touchstart', function(e){
-        document.getElementById("box1").style.backgroundColor = "#555555";
-        mykeyboard.ontouchdown(81);
-    }, false);
-
-    box1.addEventListener('touchend', function(e){
-        document.getElementById("box1").style.backgroundColor = "white";
-        mykeyboard.ontouchremoved(81);
-    }, false);
-
       var myAlarmManager = new alarmManager();
       var myInterruptController = new interruptController();
       var myTimerA = new timer(myAlarmManager, myInterruptController,"A");
       var myTimerB = new timer(myAlarmManager, myInterruptController, "B");
       var myTape = new tape(myAlarmManager, myInterruptController);
-      var mymem = new memory(postInit,mykeyboard,myTimerA, myTimerB, myInterruptController, myTape);
+      var mymem = new memory(postInit,mykeyboard, myTimerA, myTimerB, myInterruptController, myTape);
       var mycpu = new cpu(mymem);
-      mycpu.setInterruptSource(myInterruptController);
       myAlarmManager.setCpu(mycpu);
       myInterruptController.setCpu(mycpu);
+      mycpu.setInterruptController(myInterruptController);
+
       var myvideo = new video(document.getElementById("screen"), mymem, mycpu);
+      mymem.setVideo(myvideo);
+      mycpu.setVideo(myvideo);
+      var mytimer;
       var running = false;
       var breakpoint = 0;
-     
-     function attachTape() {
-       myTape.attachTape(document.getElementById("files").files[0]);
-     }
 
      function postInit() {
         document.getElementById("btnStep").disabled = false;
@@ -112,6 +88,7 @@ Break at: <input type="text" id="breakpoint">
       function runBatch() {
         if (!running)
           return;
+        mycpu.setAllowLogging(document.getElementById("allowDebug").checked);
         //myvideo.updateCanvas();
         //var targetCycleCount =  mycpu.getCycleCount() + 20000;
         while (true) { 
@@ -120,21 +97,20 @@ Break at: <input type="text" id="breakpoint">
           //if (mycpu.getCycleCount() > 6000000)            
           //  mymem.setSimulateKeypress();
           //var blankingPeriodLow = targetCycleCount - 100;
-          if (myvideo.getCurrentLine() > 284) { 
-            mymem.writeMem(0xD012, 0);
-          } else  {
-            mymem.writeMem(0xD012, 1);
-          }
+          //if (myvideo.getCurrentLine() > 284) {
+          //  mymem.writeMem(0xD012, 0);
+          //} else  {
+          //  mymem.writeMem(0xD012, 1);
+          //}
           if (mycpu.getPc() == breakpoint) {
             stopEm();
             return;
           }
           var framefinished = myvideo.processpixels();
-          if (framefinished)
+          if (framefinished)            
             return;
         }
         //mycpu.setInterrupt();
-
       }
       
       function startEm() {
@@ -150,7 +126,7 @@ Break at: <input type="text" id="breakpoint">
 
       function stopEm() {
         running = false;
-        clearInterval(myTimer);
+        clearInterval(mytimer);
         displayEmuState();
 
         document.getElementById("btnStep").disabled = false;

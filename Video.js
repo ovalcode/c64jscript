@@ -6,6 +6,8 @@ function video(mycanvas, mem, cpu) {
   var cycleInLine = 0;
   var cycleline = 0;
   var charPosInMem = 0;  
+  var registers = new Uint8Array(0x2e);
+  var colorRAM = new Uint8Array(1000);
   var posInCanvas = 0;
   var imgData = ctx.createImageData(400, 284);
 
@@ -31,6 +33,39 @@ function video(mycanvas, mem, cpu) {
     return cycleline;
   }
 
+  this.vicIntOccured = function() {
+    return registers[0x19] >= 128;
+  }
+
+  this.writeReg = function (number, value) {
+    if (number == 0x19) {
+      var temp = ~value & registers[number];
+      temp = temp & 0xf;
+      registers[number] = (temp > 0) ? (temp | 128) : 0;
+    } else {
+      registers[number] = value;
+    }
+  }
+
+  this.readReg = function (number) {
+    if (number == 0x11) {
+      var bit8 = (cycleline & 0x100) >> 1;
+      var temp = (registers[number] & 0x7f) | bit8;
+      return temp;
+    } else if (number == 0x12) {
+      return (cycleline & 0xff);    } else {
+      return registers[number];
+    }
+  }
+
+  this.writeColorRAM = function(number, value) {
+    colorRAM[number] = value;
+  }
+
+  this.readColorRAM = function(number) {
+    return colorRAM[number];
+  }
+
   this.processpixels = function() {
     var numBytes = mycpu.getCycleCount() - cpuCycles;
     cpuCycles = mycpu.getCycleCount();
@@ -49,6 +84,9 @@ function video(mycanvas, mem, cpu) {
       if (cycleInLine > 63) {
         cycleInLine = 0;
         cycleline++;
+        if (targetRasterReached() & rasterIntEnabled()) {
+          registers[0x19] = registers[0x19] | 1 | 128;
+        }
         updateCharPos();
       }
       if (cycleline > 311) {
@@ -63,18 +101,22 @@ function video(mycanvas, mem, cpu) {
 
     }
       return false;
-    //TODO:
-    //When number of lines finished
-    //force draw
-    //recreate frame
-    //remove call to update canvas in runbatch method
-    //call putimage method
-    //return boolean indicating runbatch must exit
-    //change runbatch to exit if above rteurn true
+  }
+
+  function rasterIntEnabled() {
+    return (registers[0x1a] & 1) == 1;
+  }
+
+  function targetRasterReached() {
+    var temp = registers[0x11] & 0x80;
+    temp = temp << 1;
+    temp = temp | (registers[0x12]);
+    var tempCurrentLine = (cycleline == 312) ? 0 : cycleline;
+    return (temp == tempCurrentLine);
   }
 
   function displayEnabled() {
-    return ((localMem.readMem(0xd011) & 0x10) != 0)
+    return ((registers[0x11] & 0x10) != 0)
   }
 
   function updateCharPos() {
@@ -90,11 +132,41 @@ function video(mycanvas, mem, cpu) {
     }
   }
 
+  function drawCharline() {
+    var bitmapMode = ((registers[0x11] & 0x20) != 0) ? 1 : 0;
+    var multicolorMode = ((registers[0x16] & 0x10) != 0) ? 1 : 0;
+    var screenMode = (multicolorMode << 1) | bitmapMode;
+    switch (screenMode) {
+      //text mode, normal
+      case 0:
+        drawTextModeNormal(charPosInMem + cycleInLine - 5);
+      break;
+
+      //bitmap mode, normal
+      case 1:
+      break;
+      
+      //text mode, multi color
+      case 2:
+        drawTextModeMultiColor(charPosInMem + cycleInLine - 5);
+      break;
+
+      //bitmap mode, multi color
+      case 3:
+        drawBitmapModeMultiColor(charPosInMem + cycleInLine - 5);
+      break;
+    }
+  }
+
   function drawTextModeNormal(charPos) {
-    var screenCode = localMem.readMem(1024 + charPos);
-    var currentLine = localMem.readCharRom((screenCode << 3) + ((cycleline - 42) & 7));
-    var textColor = localMem.readMem(0xd800 + charPos);
-    var backgroundColor = localMem.readMem(0xd021);
+    var baseCharAdd = (registers[0x18] >> 1) & 7;    
+    baseCharAdd = baseCharAdd << 11;    
+    var baseScreenAdd = (registers[0x18] >> 4) & 0xf;    
+    baseScreenAdd = baseScreenAdd << 10;    
+    var screenCode = localMem.vicRead(baseScreenAdd + charPos);
+    var currentLine = localMem.vicRead(baseCharAdd + (screenCode << 3) + ((cycleline - 42) & 7));
+    var textColor = colorRAM[charPos] & 0xf;
+    var backgroundColor = registers[0x21] & 0xf;
     var currentCol = 0;
     for (currentCol = 0; currentCol < 8; currentCol++) {
       var pixelSet = (currentLine & 0x80) == 0x80;
@@ -115,13 +187,49 @@ function video(mycanvas, mem, cpu) {
 
   }
 
+  function drawTextModeMultiColor(charPos) {
+    var baseCharAdd = (registers[0x18] >> 1) & 7;
+    baseCharAdd = baseCharAdd << 11;
+    var baseScreenAdd = (registers[0x18] >> 4) & 0xf;
+    baseScreenAdd = baseScreenAdd << 10;
+    var screenCode = localMem.vicRead(baseScreenAdd + charPos);
+    var currentLine = localMem.vicRead(baseCharAdd + (screenCode << 3) + ((cycleline - 42) & 7));
+    var textColor = colorRAM[charPos] & 0xf;
+    if ((textColor & 8) == 0)
+      return drawTextModeNormal(charPos);
+    var backgroundColor = registers[0x21];
+    var color1 = registers[0x22];
+    var color2 = registers[0x23];
+    var color3 = textColor;
+    var colorArray = [backgroundColor, color1, color2, color3];
+    var pixPair = 0;
+    for (pixPair = 0; pixPair < 4; pixPair++) {
+      var colorValue = (currentLine >> 6) & 3;
+      imgData.data[posInCanvas + 0] = colors[colorArray[colorValue]][0];
+      imgData.data[posInCanvas + 1] = colors[colorArray[colorValue]][1];
+      imgData.data[posInCanvas + 2] = colors[colorArray[colorValue]][2];
+      imgData.data[posInCanvas + 3] = 255;
+      imgData.data[posInCanvas + 4] = colors[colorArray[colorValue]][0];
+      imgData.data[posInCanvas + 5] = colors[colorArray[colorValue]][1];
+      imgData.data[posInCanvas + 6] = colors[colorArray[colorValue]][2];
+      imgData.data[posInCanvas + 7] = 255;
+
+      currentLine = currentLine << 2;
+      posInCanvas = posInCanvas + 8;
+   }
+  }
+
   function drawBitmapModeMultiColor(charPos) {
-    var currentLine = localMem.readMem(0xe000+(charPos << 3) + ((cycleline - 42) & 7));
-    var textColor = localMem.readMem(0xd800 + charPos);
-    var backgroundColor = localMem.readMem(0xd021);
-    var color1 = (localMem.readMem(49152 + charPos) & 0xf0) >> 4;
-    var color2 = localMem.readMem(49152 + charPos) & 0xf;
-    var color3 = localMem.readMem(0xd800 + charPos) & 0xf;
+    var baseCharAdd = (registers[0x18] >> 1) & 7;    
+    baseCharAdd = baseCharAdd << 11;    
+    var baseScreenAdd = (registers[0x18] >> 4) & 0xf;    
+    baseScreenAdd = baseScreenAdd << 10;    
+    var currentLine = localMem.vicRead(baseCharAdd+(charPos << 3) + ((cycleline - 42) & 7));
+    var textColor = colorRAM[charPos];
+    var backgroundColor = registers[0x21];
+    var color1 = (localMem.vicRead(baseScreenAdd + charPos) & 0xf0) >> 4;
+    var color2 = localMem.vicRead(baseScreenAdd + charPos) & 0xf;
+    var color3 = colorRAM[charPos] & 0xf;
     var colorArray = [backgroundColor, color1, color2, color3];
     var pixPair = 0;
     for (pixPair = 0; pixPair < 4; pixPair++) {
@@ -142,61 +250,8 @@ function video(mycanvas, mem, cpu) {
   }
 
 
-// charPosInMem + cycleInLine - 5 -> when reading screen code
-//d011 bit 5 -> bitmap mode
-//d016 bit 4 -> multicolor mode
-  function drawCharline() {
-    var bitmapMode = ((localMem.readMem(0xd011) & 0x20) != 0) ? 1 : 0;
-    var multicolorMode = ((localMem.readMem(0xd016) & 0x10) != 0) ? 1 : 0;
-    var screenMode = (multicolorMode << 1) | bitmapMode;
-    switch (screenMode) {
-      //text mode, normal
-      case 0:
-        drawTextModeNormal(charPosInMem + cycleInLine - 5);
-      break;
-
-      //bitmap mode, normal
-      case 1:
-      break;
-      
-      //text mode, multi color
-      case 2:
-      break;
-
-      //bitmap mode, multi color
-      case 3:
-        drawBitmapModeMultiColor(charPosInMem + cycleInLine - 5);
-      break;
-    }
-
-
-
-
-
-    /*var screenCode = localMem.readMem(1024 + charPosInMem + cycleInLine - 5);
-    var currentLine = localMem.readCharRom((screenCode << 3) + ((cycleline - 42) & 7));
-    var textColor = localMem.readMem(0xd800 + charPosInMem + cycleInLine - 5);
-    var backgroundColor = localMem.readMem(0xd021);
-    for (currentCol = 0; currentCol < 8; currentCol++) {
-      var pixelSet = (currentLine & 0x80) == 0x80;
-      if (pixelSet) {
-        imgData.data[posInCanvas + 0] = colors[textColor][0];
-        imgData.data[posInCanvas + 1] = colors[textColor][1];
-        imgData.data[posInCanvas + 2] = colors[textColor][2];
-        imgData.data[posInCanvas + 3] = 255;
-      } else {
-        imgData.data[posInCanvas + 0] = colors[backgroundColor][0];
-        imgData.data[posInCanvas + 1] = colors[backgroundColor][1];
-        imgData.data[posInCanvas + 2] = colors[backgroundColor][2];
-        imgData.data[posInCanvas + 3] = 255;
-      }
-      currentLine = currentLine << 1;
-      posInCanvas = posInCanvas + 4;
-   }*/
-  }
-
   function fillBorderColor() {
-    var borderColor = localMem.readMem(0xd020) & 0xf;
+    var borderColor = registers[0x20] & 0xf;
     var i;
     for (i = 0; i < 8; i++ ) {
       imgData.data[posInCanvas + 0] = colors[borderColor][0];
@@ -218,42 +273,7 @@ function video(mycanvas, mem, cpu) {
     return (visibleColumn & visibleRow);
   }
 
-  this.updateCanvas = function() {
-    var imgData = ctx.createImageData(320, 200);
-    var i, currentScreenPos;
-    var currentScreenX = 0;
-    var currentScreenY = 0;
-    for (currentScreenPos = 0; currentScreenPos < 1000; currentScreenPos++) {
-      var screenCode = localMem.readMem(1024 + currentScreenPos);
-      if (currentScreenX == 40) {
-        currentScreenX = 0;
-        currentScreenY++;
-      }
-      var currentRow, currentCol;
-      for (currentRow = 0; currentRow < 8; currentRow++) {
-        var currentLine = localMem.readCharRom((screenCode << 3) + currentRow);
-        for (currentCol = 0; currentCol < 8; currentCol++) {
-          var pixelSet = (currentLine & 0x80) == 0x80;
-          var pixelPosX = (currentScreenX << 3) + currentCol;
-          var pixelPosY = (currentScreenY << 3) + currentRow;
-          var posInBuffer = (pixelPosY * 320 + pixelPosX) << 2;
-          if (pixelSet) {
-            imgData.data[posInBuffer + 0] = 0;
-            imgData.data[posInBuffer + 1] = 0;
-            imgData.data[posInBuffer + 2] = 0;
-            imgData.data[posInBuffer + 3] = 255;
-          } else {
-            imgData.data[posInBuffer + 0] = 255;
-            imgData.data[posInBuffer + 1] = 255;
-            imgData.data[posInBuffer + 2] = 255;
-            imgData.data[posInBuffer + 3] = 255;
-
-          }
-          currentLine = currentLine << 1;
-        }
-      }
-      currentScreenX++;
-    }
-    ctx.putImageData(imgData,0,0);
-  }
 }
+
+
+

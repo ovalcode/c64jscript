@@ -1,6 +1,6 @@
-function tape(alarmManager, interruptController) {
+function tape(alarmManager, interruptManager) {
   var myAlarmManager = alarmManager;
-  var myInterruptController = interruptController;
+  var myInterruptManager = interruptManager;
   var tapeData;
   var posInTape;
   var isEnabled = false;
@@ -25,13 +25,8 @@ function tape(alarmManager, interruptController) {
   }
 
   function scheduleNextTrigger() {
-    if (tapeData[posInTape] == 0) {
-      ticksBeforeExpiry = tapeData[posInTape + 1] | (tapeData[posInTape + 2] << 8) | (tapeData[posInTape + 3] << 16)
-      posInTape = posInTape + 4;
-    } else {
-      ticksBeforeExpiry = tapeData[posInTape] << 3;
-      posInTape++;
-    }
+    ticksBeforeExpiry = tapeData[posInTape] << 3;
+    posInTape++;
   }
 
   this.getIsEnabled = function() {
@@ -47,8 +42,11 @@ function tape(alarmManager, interruptController) {
   }
 
   this.trigger = function() {
-    myInterruptController.interruptFlag1();
+    myInterruptManager.interruptFlag1();
     scheduleNextTrigger();
   }
 
 }
+
+
+
