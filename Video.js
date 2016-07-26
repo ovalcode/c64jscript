@@ -66,6 +66,24 @@ function video(mycanvas, mem, cpu) {
     return colorRAM[number];
   }
 
+  //sprites 1-8 data -> 7f8 -7ff
+  //blocknumber * 64
+
+  function processSprites() {
+    i = 0;
+    for (i = 0; i < 8; i++) {
+      //if sprite enabled
+        //if current line fall within sprite line
+          //determine which of two points in current line seg falls within sprite
+          //cycle in line << 3 for pixel address
+          //do case
+          //00 -> exit
+          //01 -> from = set, to = 7, start at bit zero of 24
+          //10 -> from = 0, to = set, move set bits back from 24 and that is start bit, and 7
+          //11 -> from = 0, to = 7???
+    }
+  }
+
   this.processpixels = function() {
     var numBytes = mycpu.getCycleCount() - cpuCycles;
     cpuCycles = mycpu.getCycleCount();
