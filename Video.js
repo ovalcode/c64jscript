@@ -1,6 +1,10 @@
-function video(mycanvas, mem, cpu) {
+function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, spriteforegroundCanvas, mem, cpu) {
   var localMem = mem;
-  var ctx = mycanvas.getContext("2d");
+  var ctxBackground = backgroundCanvas.getContext("2d");
+  var ctxSpriteBackground = spriteBackgroundCanvas.getContext("2d");
+  var ctxForeground = foregroundCanvas.getContext("2d");
+  var ctxSpriteForeground = spriteforegroundCanvas.getContext("2d");
+
   var mycpu = cpu;
   var cpuCycles = 0;
   var cycleInLine = 0;
@@ -9,7 +13,12 @@ function video(mycanvas, mem, cpu) {
   var registers = new Uint8Array(0x2e);
   var colorRAM = new Uint8Array(1000);
   var posInCanvas = 0;
-  var imgData = ctx.createImageData(400, 284);
+
+  var backgroundData = ctxBackground.createImageData(400, 284);
+  var spriteBackgroundData = ctxSpriteBackground.createImageData(400, 284);
+  var foregroundData = ctxForeground.createImageData(400, 284);
+  var spriteForegroundData = ctxSpriteForeground.createImageData(400, 284);
+
 
 
   const colors = [[0, 0, 0],
