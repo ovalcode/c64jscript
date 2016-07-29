@@ -22,10 +22,10 @@ body {
 
 
 .perspective {
-	-webkit-perspective: 400px;
-	   -moz-perspective: 400px;
-	     -o-perspective: 400px;
-	        perspective: 400px;
+	-webkit-perspective: 350px;
+	   -moz-perspective: 350px;
+	     -o-perspective: 350px;
+	        perspective: 350px;
 }        
 
 .noperspective {
@@ -56,17 +56,17 @@ body {
 }
 
 .translate {
-	-webkit-transform: translateX(20px) translateY(20px) translateZ(-100px);
-	   -moz-transform: translateX(20px) translateY(20px) translateZ(-100px);
-	     -o-transform: translateX(20px) translateY(20px) translateZ(-100px);
-	        transform: translateX(20px) translateY(20px) translateZ(-100px);
+	-webkit-transform: translateX(50px);
+	   -moz-transform: translateX(50px);
+	     -o-transform: translateX(50px);
+	        transform: translateX(50px);
 }
 
 .rotate {
-	-webkit-transform: rotateY(30deg);
-	   -moz-transform: rotateY(30deg);
-	     -o-transform: rotateY(30deg);
-	        transform: rotateY(30deg);
+	-webkit-transform: rotateY(50deg);
+	   -moz-transform: rotateY(50deg);
+	     -o-transform: rotateY(50deg);
+	        transform: rotateY(50deg);
 }
 
 .scale {

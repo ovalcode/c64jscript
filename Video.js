@@ -207,7 +207,11 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         foregroundData.data[posInCanvas + 2] = colors[textColor][2];
         foregroundData.data[posInCanvas + 3] = 255;
       } else {
-        foregroundData.data[posInCanvas + 3] = 0;
+        foregroundData.data[posInCanvas + 0] = 0;
+        foregroundData.data[posInCanvas + 1] = 0;
+        foregroundData.data[posInCanvas + 2] = 0;
+        foregroundData.data[posInCanvas + 3] = 50;
+
         backgroundData.data[posInCanvas + 0] = colors[backgroundColor][0];
         backgroundData.data[posInCanvas + 1] = colors[backgroundColor][1];
         backgroundData.data[posInCanvas + 2] = colors[backgroundColor][2];
