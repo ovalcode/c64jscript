@@ -1,0 +1,13 @@
+@CHARSET "UTF-8";
+
+#perspective1 {
+   	position:absolute;
+   	left:80px;
+   	top:60px;
+}
+
+#perspective2 {
+   	position:absolute;
+   	left:440px;
+   	top:60px;
+}
