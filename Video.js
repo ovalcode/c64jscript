@@ -20,7 +20,6 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
   var spriteForegroundData = ctxSpriteForeground.createImageData(400, 284);
 
 
-
   const colors = [[0, 0, 0],
                   [255, 255, 255],
                   [136, 0, 0],
@@ -118,9 +117,13 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
       }
       if (cycleline > 311) {
         cycleline = 0;
-        ctx.putImageData(imgData,0,0);
+        ctxForeground.putImageData(foregroundData,0,0);
+        ctxBackground.putImageData(backgroundData,0,0);
+
         posInCanvas = 0;
         charPosInMem = 0;
+
+
         //imgData = ctx.createImageData(400, 284);
         return true;
       }
@@ -186,6 +189,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
   }
 
   function drawTextModeNormal(charPos) {
+
     var baseCharAdd = (registers[0x18] >> 1) & 7;    
     baseCharAdd = baseCharAdd << 11;    
     var baseScreenAdd = (registers[0x18] >> 4) & 0xf;    
@@ -198,15 +202,16 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     for (currentCol = 0; currentCol < 8; currentCol++) {
       var pixelSet = (currentLine & 0x80) == 0x80;
       if (pixelSet) {
-        imgData.data[posInCanvas + 0] = colors[textColor][0];
-        imgData.data[posInCanvas + 1] = colors[textColor][1];
-        imgData.data[posInCanvas + 2] = colors[textColor][2];
-        imgData.data[posInCanvas + 3] = 255;
+        foregroundData.data[posInCanvas + 0] = colors[textColor][0];
+        foregroundData.data[posInCanvas + 1] = colors[textColor][1];
+        foregroundData.data[posInCanvas + 2] = colors[textColor][2];
+        foregroundData.data[posInCanvas + 3] = 255;
       } else {
-        imgData.data[posInCanvas + 0] = colors[backgroundColor][0];
-        imgData.data[posInCanvas + 1] = colors[backgroundColor][1];
-        imgData.data[posInCanvas + 2] = colors[backgroundColor][2];
-        imgData.data[posInCanvas + 3] = 255;
+        foregroundData.data[posInCanvas + 3] = 0;
+        backgroundData.data[posInCanvas + 0] = colors[backgroundColor][0];
+        backgroundData.data[posInCanvas + 1] = colors[backgroundColor][1];
+        backgroundData.data[posInCanvas + 2] = colors[backgroundColor][2];
+        backgroundData.data[posInCanvas + 3] = 255;
       }
       currentLine = currentLine << 1;
       posInCanvas = posInCanvas + 4;
@@ -215,6 +220,9 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
   }
 
   function drawTextModeMultiColor(charPos) {
+  //var foregroundData = ctxForeground.createImageData(400, 284);
+  //var backgroundData = ctxBackground.createImageData(400, 284);
+
     var baseCharAdd = (registers[0x18] >> 1) & 7;
     baseCharAdd = baseCharAdd << 11;
     var baseScreenAdd = (registers[0x18] >> 4) & 0xf;
@@ -232,14 +240,14 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     var pixPair = 0;
     for (pixPair = 0; pixPair < 4; pixPair++) {
       var colorValue = (currentLine >> 6) & 3;
-      imgData.data[posInCanvas + 0] = colors[colorArray[colorValue]][0];
-      imgData.data[posInCanvas + 1] = colors[colorArray[colorValue]][1];
-      imgData.data[posInCanvas + 2] = colors[colorArray[colorValue]][2];
-      imgData.data[posInCanvas + 3] = 255;
-      imgData.data[posInCanvas + 4] = colors[colorArray[colorValue]][0];
-      imgData.data[posInCanvas + 5] = colors[colorArray[colorValue]][1];
-      imgData.data[posInCanvas + 6] = colors[colorArray[colorValue]][2];
-      imgData.data[posInCanvas + 7] = 255;
+      foregroundData.data[posInCanvas + 0] = colors[colorArray[colorValue]][0];
+      foregroundData.data[posInCanvas + 1] = colors[colorArray[colorValue]][1];
+      foregroundData.data[posInCanvas + 2] = colors[colorArray[colorValue]][2];
+      foregroundData.data[posInCanvas + 3] = 255;
+      foregroundData.data[posInCanvas + 4] = colors[colorArray[colorValue]][0];
+      foregroundData.data[posInCanvas + 5] = colors[colorArray[colorValue]][1];
+      foregroundData.data[posInCanvas + 6] = colors[colorArray[colorValue]][2];
+      foregroundData.data[posInCanvas + 7] = 255;
 
       currentLine = currentLine << 2;
       posInCanvas = posInCanvas + 8;
@@ -261,14 +269,14 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     var pixPair = 0;
     for (pixPair = 0; pixPair < 4; pixPair++) {
       var colorValue = (currentLine >> 6) & 3;
-      imgData.data[posInCanvas + 0] = colors[colorArray[colorValue]][0];
-      imgData.data[posInCanvas + 1] = colors[colorArray[colorValue]][1];
-      imgData.data[posInCanvas + 2] = colors[colorArray[colorValue]][2];
-      imgData.data[posInCanvas + 3] = 255;
-      imgData.data[posInCanvas + 4] = colors[colorArray[colorValue]][0];
-      imgData.data[posInCanvas + 5] = colors[colorArray[colorValue]][1];
-      imgData.data[posInCanvas + 6] = colors[colorArray[colorValue]][2];
-      imgData.data[posInCanvas + 7] = 255;
+      foregroundData.data[posInCanvas + 0] = colors[colorArray[colorValue]][0];
+      foregroundData.data[posInCanvas + 1] = colors[colorArray[colorValue]][1];
+      foregroundData.data[posInCanvas + 2] = colors[colorArray[colorValue]][2];
+      foregroundData.data[posInCanvas + 3] = 255;
+      foregroundData.data[posInCanvas + 4] = colors[colorArray[colorValue]][0];
+      foregroundData.data[posInCanvas + 5] = colors[colorArray[colorValue]][1];
+      foregroundData.data[posInCanvas + 6] = colors[colorArray[colorValue]][2];
+      foregroundData.data[posInCanvas + 7] = 255;
 
       currentLine = currentLine << 2;
       posInCanvas = posInCanvas + 8;
@@ -281,10 +289,10 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     var borderColor = registers[0x20] & 0xf;
     var i;
     for (i = 0; i < 8; i++ ) {
-      imgData.data[posInCanvas + 0] = colors[borderColor][0];
-      imgData.data[posInCanvas + 1] = colors[borderColor][1];
-      imgData.data[posInCanvas + 2] = colors[borderColor][2];
-      imgData.data[posInCanvas + 3] = 255;
+      foregroundData.data[posInCanvas + 0] = colors[borderColor][0];
+      foregroundData.data[posInCanvas + 1] = colors[borderColor][1];
+      foregroundData.data[posInCanvas + 2] = colors[borderColor][2];
+      foregroundData.data[posInCanvas + 3] = 255;
       posInCanvas = posInCanvas + 4;
     }
 
