@@ -12,6 +12,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
   var charPosInMem = 0;  
   var registers = new Uint8Array(0x2e);
   var colorRAM = new Uint8Array(1000);
+  var spriteColorLine = new Uint8Array(48 * 4);
   var posInCanvas = 0;
 
   var backgroundData = ctxBackground.createImageData(400, 284);
@@ -74,8 +75,6 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     return colorRAM[number];
   }
 
-  //sprites 1-8 data -> 7f8 -7ff
-  //blocknumber * 64
 
   function processSprites() {
     i = 0;
@@ -132,6 +131,165 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     }
       return false;
   }
+
+  function getSpriteLineData (spriteNumber, spriteLine) {
+  //sprites 1-8 data -> 7f8 -7ff
+  //blocknumber * 64
+
+    var spritePointerAdd = (registers[0x18] >> 4) & 0xf;    
+    spritePointerAdd = spritePointerAdd << 10;
+    spritePointerAdd = spritePointerAdd + 0x3f8 + spriteNumber;
+    spriteBaseAdd = localMem.vicRead(spritePointerAdd) << 6;
+    posInSpriteData = spriteLine * 3 + spriteBaseAdd;
+    spriteDataByte0 = localMem.vicRead(posInSpriteData + 0);
+    spriteDataByte1 = localMem.vicRead(posInSpriteData + 1);
+    spriteDataByte2 = localMem.vicRead(posInSpriteData + 2);
+    return (spriteDataByte0 << 16) | (spriteDataByte0 << 8) | (spriteDataByte0 << 0);
+  }
+
+  function populateSpriteColorLine (spriteNumber, spriteLine) {
+    var spriteData = getSpriteLineData(spriteNumber, spriteLine);
+    var spriteColor = registers[0x27 + spriteNumber] & 0xf;
+    i = 0;
+    posInColorLine = 0;
+    for (i = 0; i < 24; i++) {
+      var currentBit = (spriteData >> 23) & 1;
+      if (currentBit == 1) {
+        spriteColorLine [posInColorLine + 0] = colors[spriteColor][0];
+        spriteColorLine [posInColorLine + 1] = colors[spriteColor][1];
+        spriteColorLine [posInColorLine + 2] = colors[spriteColor][2];
+        spriteColorLine [posInColorLine + 3] = 255;
+      } else {
+        spriteColorLine [posInColorLine + 0] = 0;
+        spriteColorLine [posInColorLine + 1] = 0;
+        spriteColorLine [posInColorLine + 2] = 0;
+        spriteColorLine [posInColorLine + 3] = 0;
+      }
+      posInColorLine = posInColorLine + 4;
+      spriteData = (spriteData << 1) & 0xffffff;
+    }
+  }
+
+
+  function populateSpriteMultiColorLine (spriteNumber, spriteLine) {
+    var spriteData = getSpriteLineData(spriteNumber, spriteLine);
+
+    var spriteColor = registers[0x27 + spriteNumber] & 0xf;
+    var multicolorPalette = [-1, (registers[0x25] & 0xf), spriteColor, (registers[0x26] & 0xf)];
+    i = 0;
+    posInColorLine = 0;
+    for (i = 0; i < 12; i++) {
+      var currentBits = (spriteData >> 22) & 3;
+      if (currentBits > 0) {
+        spriteColorLine [posInColorLine + 0] = colors[multicolorPalette[currentBits]][0];
+        spriteColorLine [posInColorLine + 1] = colors[multicolorPalette[currentBits]][1];
+        spriteColorLine [posInColorLine + 2] = colors[multicolorPalette[currentBits]][2];
+        spriteColorLine [posInColorLine + 3] = 255;
+        spriteColorLine [posInColorLine + 4] = colors[multicolorPalette[currentBits]][0];
+        spriteColorLine [posInColorLine + 5] = colors[multicolorPalette[currentBits]][1];
+        spriteColorLine [posInColorLine + 6] = colors[multicolorPalette[currentBits]][2];
+        spriteColorLine [posInColorLine + 7] = 255;
+
+      } else {
+        spriteColorLine [posInColorLine + 0] = 0;
+        spriteColorLine [posInColorLine + 1] = 0;
+        spriteColorLine [posInColorLine + 2] = 0;
+        spriteColorLine [posInColorLine + 3] = 0;
+        spriteColorLine [posInColorLine + 4] = 0;
+        spriteColorLine [posInColorLine + 5] = 0;
+        spriteColorLine [posInColorLine + 6] = 0;
+        spriteColorLine [posInColorLine + 7] = 0;
+
+      }
+      posInColorLine = posInColorLine + 8;
+      spriteData = (spriteData << 2) & 0xffffff;
+    }
+  }
+
+  function populateSpriteColorLineExpanded (spriteNumber, spriteLine) {
+    var spriteData = getSpriteLineData(spriteNumber, spriteLine);
+    var spriteColor = registers[0x27 + spriteNumber] & 0xf;
+    i = 0;
+    posInColorLine = 0;
+    for (i = 0; i < 24; i++) {
+      var currentBit = (spriteData >> 23) & 1;
+      if (currentBit == 1) {
+        spriteColorLine [posInColorLine + 0] = colors[spriteColor][0];
+        spriteColorLine [posInColorLine + 1] = colors[spriteColor][1];
+        spriteColorLine [posInColorLine + 2] = colors[spriteColor][2];
+        spriteColorLine [posInColorLine + 3] = 255;
+        spriteColorLine [posInColorLine + 4] = colors[spriteColor][0];
+        spriteColorLine [posInColorLine + 5] = colors[spriteColor][1];
+        spriteColorLine [posInColorLine + 6] = colors[spriteColor][2];
+        spriteColorLine [posInColorLine + 7] = 255;
+
+      } else {
+        spriteColorLine [posInColorLine + 0] = 0;
+        spriteColorLine [posInColorLine + 1] = 0;
+        spriteColorLine [posInColorLine + 2] = 0;
+        spriteColorLine [posInColorLine + 3] = 0;
+        spriteColorLine [posInColorLine + 4] = 0;
+        spriteColorLine [posInColorLine + 5] = 0;
+        spriteColorLine [posInColorLine + 6] = 0;
+        spriteColorLine [posInColorLine + 7] = 0;
+      }
+      posInColorLine = posInColorLine + 8;
+      spriteData = (spriteData << 1) & 0xffffff;
+    }
+  }
+
+  function populateSpriteMultiColorLineExpanded (spriteNumber, spriteLine) {
+    var spriteData = getSpriteLineData(spriteNumber, spriteLine);
+
+    var spriteColor = registers[0x27 + spriteNumber] & 0xf;
+    var multicolorPalette = [-1, (registers[0x25] & 0xf), spriteColor, (registers[0x26] & 0xf)];
+    i = 0;
+    posInColorLine = 0;
+    for (i = 0; i < 12; i++) {
+      var currentBits = (spriteData >> 22) & 3;
+      if (currentBits > 0) {
+        spriteColorLine [posInColorLine + 0] = colors[multicolorPalette[currentBits]][0];
+        spriteColorLine [posInColorLine + 1] = colors[multicolorPalette[currentBits]][1];
+        spriteColorLine [posInColorLine + 2] = colors[multicolorPalette[currentBits]][2];
+        spriteColorLine [posInColorLine + 3] = 255;
+        spriteColorLine [posInColorLine + 4] = colors[multicolorPalette[currentBits]][0];
+        spriteColorLine [posInColorLine + 5] = colors[multicolorPalette[currentBits]][1];
+        spriteColorLine [posInColorLine + 6] = colors[multicolorPalette[currentBits]][2];
+        spriteColorLine [posInColorLine + 7] = 255;
+        spriteColorLine [posInColorLine + 8] = colors[multicolorPalette[currentBits]][0];
+        spriteColorLine [posInColorLine + 9] = colors[multicolorPalette[currentBits]][1];
+        spriteColorLine [posInColorLine + 10] = colors[multicolorPalette[currentBits]][2];
+        spriteColorLine [posInColorLine + 11] = 255;
+        spriteColorLine [posInColorLine + 12] = colors[multicolorPalette[currentBits]][0];
+        spriteColorLine [posInColorLine + 13] = colors[multicolorPalette[currentBits]][1];
+        spriteColorLine [posInColorLine + 14] = colors[multicolorPalette[currentBits]][2];
+        spriteColorLine [posInColorLine + 15] = 255;
+
+      } else {
+        spriteColorLine [posInColorLine + 0] = 0;
+        spriteColorLine [posInColorLine + 1] = 0;
+        spriteColorLine [posInColorLine + 2] = 0;
+        spriteColorLine [posInColorLine + 3] = 0;
+        spriteColorLine [posInColorLine + 4] = 0;
+        spriteColorLine [posInColorLine + 5] = 0;
+        spriteColorLine [posInColorLine + 6] = 0;
+        spriteColorLine [posInColorLine + 7] = 0;
+        spriteColorLine [posInColorLine + 8] = 0;
+        spriteColorLine [posInColorLine + 9] = 0;
+        spriteColorLine [posInColorLine + 10] = 0;
+        spriteColorLine [posInColorLine + 11] = 0;
+        spriteColorLine [posInColorLine + 12] = 0;
+        spriteColorLine [posInColorLine + 13] = 0;
+        spriteColorLine [posInColorLine + 14] = 0;
+        spriteColorLine [posInColorLine + 15] = 0;
+
+      }
+      posInColorLine = posInColorLine + 16;
+      spriteData = (spriteData << 2) & 0xffffff;
+    }
+  }
+
+
 
   function rasterIntEnabled() {
     return (registers[0x1a] & 1) == 1;
