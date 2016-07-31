@@ -94,17 +94,70 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         spritePosX = spritePosX | 0x100;
       }
       var spritePosY = registers[(currentSprite << 1) | 1];
-      if (!((cycleline >= spritePosY) & (cycleline <= (spritePosY + 20)))
+      if (!((cycleline >= spritePosY) & (cycleline < (spritePosY + yDimension)))
         continue;
       var lineScenario = 0;
-      if (((lineSegmentStart >= spritePosX) & (lineSegmentStart <= (spritePosX + 23)))
+      if (((lineSegmentStart >= spritePosX) & (lineSegmentStart < (spritePosX + xDimension)))
         lineScenario = 2;
 
-      if (((lineSegmentStop >= spritePosX) & (lineSegmentStop <= (spritePosX + 23)))
+      if (((lineSegmentStop >= spritePosX) & (lineSegmentStop < (spritePosX + xDimension)))
         lineScenario = lineScenario | 1;
 
       if (lineScenario == 0)
         continue;
+      
+      var canvasForSprite;
+      if ((registers[0x1b] & spriteBit) == 0) {
+        canvasForSprite = spriteForegroundData;
+      } else {
+        canvasForSprite = spriteBackgroundData;
+      }
+      var posInSpriteCanvas = posInCanvas - 8;
+      if (lineScenario = 1) { 
+        var startInLineSeg = (spritePosX & 7) << 2;
+        posInSpriteCanvas = posInSpriteCanvas + startInLineSeg;
+        var i = 0;
+        var posInSpriteColorLine = 0;
+        for (i = startInLineSeg; i < 32; i = i + 4) {
+          canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
+          canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
+          canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
+          canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
+
+          posInSpriteCanvas = posInSpriteCanvas + 4;
+          posInSpriteColorLine = posInSpriteColorLine + 4;
+        }
+
+      } else if (lineScenario = 2) {
+        var startInLineSeg = 0;
+        var endInLineSeg = (spritePosX & 7) << 2;
+        var i = 0;
+        var posInSpriteColorLine = (xDimension - (spritePosX & 7)) << 2;
+        for (i = 0; i < endInLineSeg; i = i + 4) {
+          canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
+          canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
+          canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
+          canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
+
+          posInSpriteCanvas = posInSpriteCanvas + 4;
+          posInSpriteColorLine = posInSpriteColorLine + 4;
+        }
+
+      } else {
+        var i = 0;
+        var posInSpriteColorLine = (lineSegmentStart - spritePosX) << 2;
+        for (i = 0; i < 32; i = i + 4) {
+          canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
+          canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
+          canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
+          canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
+
+          posInSpriteCanvas = posInSpriteCanvas + 4;
+          posInSpriteColorLine = posInSpriteColorLine + 4;
+        }
+
+
+      }
 
       //if sprite enabled
         //if current line fall within sprite line
