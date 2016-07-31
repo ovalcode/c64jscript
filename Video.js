@@ -78,7 +78,34 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
 
   function processSprites() {
     i = 0;
+    var spriteBit = 0x80;
+    var lineSegmentStart = cycleInLine << 3;
+    var lineSegmentStop = lineSegmentStart | 7;
     for (i = 0; i < 8; i++) {
+      var currentSprite = 7 - i;
+      if ((registers[0x15] & spriteBit) == 0)
+        continue;
+      var xExpanded = (registers[0x1d] & spriteBit) != 0;
+      var yExpanded = (registers[0x17] & spriteBit) != 0;
+      var xDimension = xExpanded ? 48: 24;
+      var yDimension = yExpanded ? 42: 21;
+      var spritePosX = registers[currentSprite << 1];
+      if ((registers[0x10] & spriteBit) != 0) {
+        spritePosX = spritePosX | 0x100;
+      }
+      var spritePosY = registers[(currentSprite << 1) | 1];
+      if (!((cycleline >= spritePosY) & (cycleline <= (spritePosY + 20)))
+        continue;
+      var lineScenario = 0;
+      if (((lineSegmentStart >= spritePosX) & (lineSegmentStart <= (spritePosX + 23)))
+        lineScenario = 2;
+
+      if (((lineSegmentStop >= spritePosX) & (lineSegmentStop <= (spritePosX + 23)))
+        lineScenario = lineScenario | 1;
+
+      if (lineScenario == 0)
+        continue;
+
       //if sprite enabled
         //if current line fall within sprite line
           //determine which of two points in current line seg falls within sprite
@@ -88,6 +115,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
           //01 -> from = set, to = 7, start at bit zero of 24
           //10 -> from = 0, to = set, move set bits back from 24 and that is start bit, and 7
           //11 -> from = 0, to = 7???
+      spriteBit = spriteBit >> 1;
     }
   }
 
