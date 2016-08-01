@@ -228,7 +228,8 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         cycleline = 0;
         ctxForeground.putImageData(foregroundData,0,0);
         ctxBackground.putImageData(backgroundData,0,0);
-
+        ctxSpriteBackground.putImageData(spriteBackgroundData,0,0);
+        ctxSpriteForeground.putImageData(spriteForegroundData,0,0);
         posInCanvas = 0;
         charPosInMem = 0;
 
