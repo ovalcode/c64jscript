@@ -83,6 +83,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     var lineSegmentStop = lineSegmentStart | 7;
     for (i = 0; i < 8; i++) {
       var currentSprite = 7 - i;
+      spriteBit = 0x80 >> i;
       if ((registers[0x15] & spriteBit) == 0)
         continue;
       var xExpanded = (registers[0x1d] & spriteBit) != 0;
@@ -94,13 +95,13 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         spritePosX = spritePosX | 0x100;
       }
       var spritePosY = registers[(currentSprite << 1) | 1];
-      if (!((cycleline >= spritePosY) & (cycleline < (spritePosY + yDimension)))
+      if (!((cycleline >= spritePosY) & (cycleline < (spritePosY + yDimension))))
         continue;
       var lineScenario = 0;
-      if (((lineSegmentStart >= spritePosX) & (lineSegmentStart < (spritePosX + xDimension)))
+      if (((lineSegmentStart >= spritePosX) & (lineSegmentStart < (spritePosX + xDimension))))
         lineScenario = 2;
 
-      if (((lineSegmentStop >= spritePosX) & (lineSegmentStop < (spritePosX + xDimension)))
+      if (((lineSegmentStop >= spritePosX) & (lineSegmentStop < (spritePosX + xDimension))))
         lineScenario = lineScenario | 1;
 
       if (lineScenario == 0)
@@ -124,7 +125,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
           populateSpriteColorLine(currentSprite, requiredLineInSprite);
         }
       }
-      populateSpriteColorLine (currentSprite, cycleline - );
+
       
       var canvasForSprite;
       if ((registers[0x1b] & spriteBit) == 0) {
@@ -133,7 +134,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         canvasForSprite = spriteBackgroundData;
       }
       var posInSpriteCanvas = posInCanvas - 8;
-      if (lineScenario = 1) { 
+      if (lineScenario == 1) { 
         var startInLineSeg = (spritePosX & 7) << 2;
         posInSpriteCanvas = posInSpriteCanvas + startInLineSeg;
         var i = 0;
@@ -148,7 +149,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
           posInSpriteColorLine = posInSpriteColorLine + 4;
         }
 
-      } else if (lineScenario = 2) {
+      } else if (lineScenario == 2) {
         var startInLineSeg = 0;
         var endInLineSeg = (spritePosX & 7) << 2;
         var i = 0;
@@ -184,18 +185,18 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
 //clear sprite canvasses beginning of each runBatch
 //change code to use additional 
 
-      spriteBit = spriteBit >> 1;
+
     }
   }
 
   this.initForNextFrame = function() {
     var i;
-    for (i = 0; i < spriteBackgroundData.length; i++) {
+    /*for (i = 0; i < spriteBackgroundData.length; i++) {
       spriteBackgroundData.data[i] = 0;
     }
     for (i = 0; i < spriteForegroundData.length; i++) {
       spriteForegroundData.data[i] = 0;
-    }
+    }*/
 
   }
 
