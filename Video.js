@@ -140,11 +140,12 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         var j = 0;
         var posInSpriteColorLine = 0;
         for (j = startInLineSeg; j < 32; j = j + 4) {
-          canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
-          canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
-          canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
-          canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
-
+          if (spriteColorLine[posInSpriteColorLine+3] != 0) {
+            canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
+            canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
+            canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
+            canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
+          }
           posInSpriteCanvas = posInSpriteCanvas + 4;
           posInSpriteColorLine = posInSpriteColorLine + 4;
         }
@@ -155,11 +156,12 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         var j = 0;
         var posInSpriteColorLine = (xDimension - (spritePosX & 7)) << 2;
         for (j = 0; j < endInLineSeg; j = j + 4) {
-          canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
-          canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
-          canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
-          canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
-
+          if (spriteColorLine[posInSpriteColorLine+3] != 0) {
+            canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
+            canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
+            canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
+            canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
+          }
           posInSpriteCanvas = posInSpriteCanvas + 4;
           posInSpriteColorLine = posInSpriteColorLine + 4;
         }
@@ -168,11 +170,12 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         var j = 0;
         var posInSpriteColorLine = (lineSegmentStart - spritePosX) << 2;
         for (j = 0; j < 32; j = j + 4) {
-          canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
-          canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
-          canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
-          canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
-
+          if (spriteColorLine[posInSpriteColorLine+3] != 0) {
+            canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
+            canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
+            canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
+            canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
+          }
           posInSpriteCanvas = posInSpriteCanvas + 4;
           posInSpriteColorLine = posInSpriteColorLine + 4;
         }
@@ -419,9 +422,9 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
   }
 
   function updateCharPos() {
-    if ( !((cycleline > 41) & (cycleline < (42 + 200))) )
+    if ( !((cycleline > 49) & (cycleline < (50 + 200))) )
       return;
-    var lineInScreen = cycleline - 42;
+    var lineInScreen = cycleline - 50;
     if (lineInScreen == 0) {
       charPosInMem = 0;
       return;
@@ -438,7 +441,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     switch (screenMode) {
       //text mode, normal
       case 0:
-        drawTextModeNormal(charPosInMem + cycleInLine - 5);
+        drawTextModeNormal(charPosInMem + cycleInLine - 4);
       break;
 
       //bitmap mode, normal
@@ -447,12 +450,12 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
       
       //text mode, multi color
       case 2:
-        drawTextModeMultiColor(charPosInMem + cycleInLine - 5);
+        drawTextModeMultiColor(charPosInMem + cycleInLine - 4);
       break;
 
       //bitmap mode, multi color
       case 3:
-        drawBitmapModeMultiColor(charPosInMem + cycleInLine - 5);
+        drawBitmapModeMultiColor(charPosInMem + cycleInLine - 4);
       break;
     }
   }
@@ -464,7 +467,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     var baseScreenAdd = (registers[0x18] >> 4) & 0xf;    
     baseScreenAdd = baseScreenAdd << 10;    
     var screenCode = localMem.vicRead(baseScreenAdd + charPos);
-    var currentLine = localMem.vicRead(baseCharAdd + (screenCode << 3) + ((cycleline - 42) & 7));
+    var currentLine = localMem.vicRead(baseCharAdd + (screenCode << 3) + ((cycleline - 50) & 7));
     var textColor = colorRAM[charPos] & 0xf;
     var backgroundColor = registers[0x21] & 0xf;
     var currentCol = 0;
@@ -497,7 +500,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     var baseScreenAdd = (registers[0x18] >> 4) & 0xf;
     baseScreenAdd = baseScreenAdd << 10;
     var screenCode = localMem.vicRead(baseScreenAdd + charPos);
-    var currentLine = localMem.vicRead(baseCharAdd + (screenCode << 3) + ((cycleline - 42) & 7));
+    var currentLine = localMem.vicRead(baseCharAdd + (screenCode << 3) + ((cycleline - 50) & 7));
     var textColor = colorRAM[charPos] & 0xf;
     if ((textColor & 8) == 0)
       return drawTextModeNormal(charPos);
@@ -510,7 +513,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     var pixPair = 0;
     for (pixPair = 0; pixPair < 4; pixPair++) {
       var colorValue = (currentLine >> 6) & 3;
-      if (colorArray >= 2) {
+      if (colorValue >= 2) {
         foregroundData.data[posInCanvas + 0] = colors[colorArray[colorValue]][0];
         foregroundData.data[posInCanvas + 1] = colors[colorArray[colorValue]][1];
         foregroundData.data[posInCanvas + 2] = colors[colorArray[colorValue]][2];
@@ -542,7 +545,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     baseCharAdd = baseCharAdd << 11;    
     var baseScreenAdd = (registers[0x18] >> 4) & 0xf;    
     baseScreenAdd = baseScreenAdd << 10;    
-    var currentLine = localMem.vicRead(baseCharAdd+(charPos << 3) + ((cycleline - 42) & 7));
+    var currentLine = localMem.vicRead(baseCharAdd+(charPos << 3) + ((cycleline - 50) & 7));
     var textColor = colorRAM[charPos];
     var backgroundColor = registers[0x21];
     var color1 = (localMem.vicRead(baseScreenAdd + charPos) & 0xf0) >> 4;
@@ -586,8 +589,8 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
   }
 
   function isPixelArea() {
-    var visibleColumn = (cycleInLine > 4) & (cycleInLine < (5+40));
-    var visibleRow = (cycleline > 41) & (cycleline < (42 + 200));
+    var visibleColumn = (cycleInLine >= 4) & (cycleInLine < (4+40));
+    var visibleRow = (cycleline > 49) & (cycleline < (50 + 200));
     return (visibleColumn & visibleRow);
   }
 
