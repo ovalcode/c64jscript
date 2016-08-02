@@ -191,10 +191,10 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
 
   this.initForNextFrame = function() {
     var i;
-    for (i = 0; i < spriteBackgroundData.length; i++) {
+    for (i = 0; i < spriteBackgroundData.data.length; i++) {
       spriteBackgroundData.data[i] = 0;
     }
-    for (i = 0; i < spriteForegroundData.length; i++) {
+    for (i = 0; i < spriteForegroundData.data.length; i++) {
       spriteForegroundData.data[i] = 0;
     }
 
@@ -255,7 +255,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     spriteDataByte0 = localMem.vicRead(posInSpriteData + 0);
     spriteDataByte1 = localMem.vicRead(posInSpriteData + 1);
     spriteDataByte2 = localMem.vicRead(posInSpriteData + 2);
-    return (spriteDataByte0 << 16) | (spriteDataByte0 << 8) | (spriteDataByte0 << 0);
+    return (spriteDataByte0 << 16) | (spriteDataByte1 << 8) | (spriteDataByte2 << 0);
   }
 
   function populateSpriteColorLine (spriteNumber, spriteLine) {
@@ -501,6 +501,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     var textColor = colorRAM[charPos] & 0xf;
     if ((textColor & 8) == 0)
       return drawTextModeNormal(charPos);
+    textColor = textColor & 7;
     var backgroundColor = registers[0x21];
     var color1 = registers[0x22];
     var color2 = registers[0x23];
