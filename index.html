@@ -26,14 +26,16 @@
 
 </div>
 
-<div class = "child" >
+<div class = "child rotate" >
+<div class = "child translateSpriteBackground" >
 <canvas id="spriteBackground" width="400px" height="284px" style="z-index: 2; position:absolute; left: 0px; top: 0px;">
 
 </canvas>
 </div>
+</div>
 
 <div class = "child rotate" >
-<div class = "child translate" >
+<div class = "child translateForeground" >
 <canvas id="screenForeground" width="400px" height="284px" style="z-index: 3; position:absolute; left: 0px; top: 0px;">
 
 </canvas>
@@ -41,11 +43,12 @@
 </div>
 
 <div class = "child rotate" >
+<div class = "child translateSpriteForeground" >
 <canvas id="spriteForefround" width="400px" height="284px" style="z-index: 4; position:absolute; left: 0px; top: 0px;">
 
 </canvas>
 </div>
-
+</div>
 </div>
 <br/>
 <input type="file" id="file" name="myfile"/>
@@ -120,6 +123,7 @@ Break at: <input type="text" id="breakpoint">
         if (!running)
           return;
         mycpu.setAllowLogging(document.getElementById("allowDebug").checked);
+        myvideo.initForNextFrame();
         //myvideo.updateCanvas();
         //var targetCycleCount =  mycpu.getCycleCount() + 20000;
         while (true) { 

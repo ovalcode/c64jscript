@@ -22,10 +22,10 @@ body {
 
 
 .perspective {
-	-webkit-perspective: 350px;
-	   -moz-perspective: 350px;
-	     -o-perspective: 350px;
-	        perspective: 350px;
+	-webkit-perspective: 450px;
+	   -moz-perspective: 450px;
+	     -o-perspective: 450px;
+	        perspective: 450px;
 }        
 
 .noperspective {
@@ -61,6 +61,29 @@ body {
 	     -o-transform: translateX(50px);
 	        transform: translateX(50px);
 }
+
+.translateSpriteBackground {
+	-webkit-transform: translateX(100px);
+	   -moz-transform: translateX(100px);
+	     -o-transform: translateX(100px);
+	        transform: translateX(100px);
+}
+
+.translateForeground {
+	-webkit-transform: translateX(200px);
+	   -moz-transform: translateX(200px);
+	     -o-transform: translateX(200px);
+	        transform: translateX(200px);
+}
+
+.translateSpriteForeground {
+	-webkit-transform: translateX(300px);
+	   -moz-transform: translateX(300px);
+	     -o-transform: translateX(300px);
+	        transform: translateX(300px);
+}
+
+
 
 .rotate {
 	-webkit-transform: rotateY(50deg);
