@@ -113,7 +113,11 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
       }
       if (cycleline > 311) {
         cycleline = 0;
-        ctx.putImageData(imgData,0,0);
+        ctxBackground.putImage(backgroundData,0,0);
+        ctxSpriteBackground.putImage(spriteBackgroundData,0,0);
+        ctxForeground.putImage(foregroundData,0,0);
+        ctxSpriteForeground.putImage(spriteForegroundData,0,0);
+
         posInCanvas = 0;
         charPosInMem = 0;
         //imgData = ctx.createImageData(400, 284);
