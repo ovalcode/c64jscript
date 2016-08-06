@@ -14,10 +14,24 @@
   <body onkeydown="mykeyboard.onkeydown(event)" onkeyup="mykeyboard.onkeyup(event)">
     <h1>6502 Emulator From Scratch</h1>
     <p>This is JavaScript Test</p>
-<canvas id="screen" width="400" height="284">
+<div style="position:relative; width:400px; height:284px">
+<canvas id="screenBackground" width="400" height="284" style="z-index: 1; position:absolute; left: 0px; top: 0px">
 
 </canvas>
-<br/>
+
+<canvas id="spriteBackground" width="400" height="284" style="z-index: 2; position:absolute; left: 0px; top: 0px">
+
+</canvas>
+
+<canvas id="screenForeground" width="400" height="284" style="z-index: 3; position:absolute; left: 0px; top: 0px">
+
+</canvas>
+
+<canvas id="spriteForefround" width="400" height="284" style="z-index: 4; position:absolute; left: 0px; top: 0px">
+
+</canvas>
+
+</div><br/>
 <input type="file" id="file" name="myfile"/>
 <button onclick="myTape.attachTape(document.getElementById('file').files[0])">Attach</button>
 <br/>
@@ -51,7 +65,8 @@ Break at: <input type="text" id="breakpoint">
       myInterruptController.setCpu(mycpu);
       mycpu.setInterruptController(myInterruptController);
 
-      var myvideo = new video(document.getElementById("screen"), mymem, mycpu);
+      var myvideo = new video(document.getElementById("screenBackground"), document.getElementById("spriteBackground"), 
+        document.getElementById("screenForeground"), document.getElementById("spriteForefround"), mymem, mycpu);
       mymem.setVideo(myvideo);
       mycpu.setVideo(myvideo);
       var mytimer;
