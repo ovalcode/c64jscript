@@ -146,9 +146,9 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
   }
 
   function updateCharPos() {
-    if ( !((cycleline > 41) & (cycleline < (42 + 200))) )
+    if ( !((cycleline > 49) & (cycleline < (50 + 200))) )
       return;
-    var lineInScreen = cycleline - 42;
+    var lineInScreen = cycleline - 50;
     if (lineInScreen == 0) {
       charPosInMem = 0;
       return;
@@ -556,8 +556,8 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
   }
 
   function isPixelArea() {
-    var visibleColumn = (cycleInLine > 4) & (cycleInLine < (5+40));
-    var visibleRow = (cycleline > 41) & (cycleline < (42 + 200));
+    var visibleColumn = (cycleInLine >= 4) & (cycleInLine < (4+40));
+    var visibleRow = (cycleline > 49) & (cycleline < (50 + 200));
     return (visibleColumn & visibleRow);
   }
 
