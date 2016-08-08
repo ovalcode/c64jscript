@@ -333,7 +333,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         var j = 0;
         var posInSpriteColorLine = 0;
         for (j = startInLineSeg; j < 32; j = j + 4) {
-          if (canvasForSprite.data[posInSpriteCanvas + 3] != 0) {
+          if (spriteColorLine[posInSpriteColorLine+3] != 0) {
             canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
             canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
             canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
@@ -349,7 +349,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         var j = 0;
         var posInSpriteColorLine = (xDimension - (spritePosX & 7)) << 2;
         for (j = 0; j < endInLineSeg; j = j + 4) {
-          if (canvasForSprite.data[posInSpriteCanvas + 3] != 0) {
+          if (spriteColorLine[posInSpriteColorLine+3] != 0) {
             canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
             canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
             canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
@@ -363,7 +363,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         var j = 0;
         var posInSpriteColorLine = (lineSegmentStart - spritePosX) << 2;
         for (j = 0; j < 32; j = j + 4) {
-          if (canvasForSprite.data[posInSpriteCanvas + 3] != 0) {
+          if (spriteColorLine[posInSpriteColorLine+3] != 0) {
             canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
             canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
             canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
