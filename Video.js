@@ -56,6 +56,18 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     }
   }
 
+  this.initForNextFrame = function() {
+    var i;
+    for (i = 0; i < spriteBackgroundData.data.length; i++) {
+      spriteBackgroundData.data[i] = 0;
+    }
+    for (i = 0; i < spriteForegroundData.data.length; i++) {
+      spriteForegroundData.data[i] = 0;
+    }
+
+  }
+
+
   this.readReg = function (number) {
     if (number == 0x11) {
       var bit8 = (cycleline & 0x100) >> 1;

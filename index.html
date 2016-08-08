@@ -104,6 +104,7 @@ Break at: <input type="text" id="breakpoint">
         if (!running)
           return;
         mycpu.setAllowLogging(document.getElementById("allowDebug").checked);
+        myvideo.initForNextFrame();
         //myvideo.updateCanvas();
         //var targetCycleCount =  mycpu.getCycleCount() + 20000;
         while (true) { 
