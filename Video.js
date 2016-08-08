@@ -227,7 +227,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     var backgroundColor = registers[0x21];
     var color1 = registers[0x22];
     var color2 = registers[0x23];
-    var color3 = textColor;
+    var color3 = textColor & 7;
     var colorArray = [backgroundColor, color1, color2, color3];
     var pixPair = 0;
     for (pixPair = 0; pixPair < 4; pixPair++) {
@@ -321,11 +321,12 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         var j = 0;
         var posInSpriteColorLine = 0;
         for (j = startInLineSeg; j < 32; j = j + 4) {
-          canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
-          canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
-          canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
-          canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
-
+          if (canvasForSprite.data[posInSpriteCanvas + 3] != 0) {
+            canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
+            canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
+            canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
+            canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
+          }
           posInSpriteCanvas = posInSpriteCanvas + 4;
           posInSpriteColorLine = posInSpriteColorLine + 4;
         }
@@ -336,11 +337,12 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         var j = 0;
         var posInSpriteColorLine = (xDimension - (spritePosX & 7)) << 2;
         for (j = 0; j < endInLineSeg; j = j + 4) {
-          canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
-          canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
-          canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
-          canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
-
+          if (canvasForSprite.data[posInSpriteCanvas + 3] != 0) {
+            canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
+            canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
+            canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
+            canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
+          }
           posInSpriteCanvas = posInSpriteCanvas + 4;
           posInSpriteColorLine = posInSpriteColorLine + 4;
         }
@@ -349,11 +351,12 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         var j = 0;
         var posInSpriteColorLine = (lineSegmentStart - spritePosX) << 2;
         for (j = 0; j < 32; j = j + 4) {
-          canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
-          canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
-          canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
-          canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
-
+          if (canvasForSprite.data[posInSpriteCanvas + 3] != 0) {
+            canvasForSprite.data[posInSpriteCanvas + 0] = spriteColorLine[posInSpriteColorLine+0];
+            canvasForSprite.data[posInSpriteCanvas + 1] = spriteColorLine[posInSpriteColorLine+1];
+            canvasForSprite.data[posInSpriteCanvas + 2] = spriteColorLine[posInSpriteColorLine+2];
+            canvasForSprite.data[posInSpriteCanvas + 3] = spriteColorLine[posInSpriteColorLine+3];
+          }
           posInSpriteCanvas = posInSpriteCanvas + 4;
           posInSpriteColorLine = posInSpriteColorLine + 4;
         }
