@@ -177,7 +177,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
     switch (screenMode) {
       //text mode, normal
       case 0:
-        drawTextModeNormal(charPosInMem + cycleInLine - 5);
+        drawTextModeNormal(charPosInMem + cycleInLine - 4);
       break;
 
       //bitmap mode, normal
@@ -186,12 +186,12 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
       
       //text mode, multi color
       case 2:
-        drawTextModeMultiColor(charPosInMem + cycleInLine - 5);
+        drawTextModeMultiColor(charPosInMem + cycleInLine - 4);
       break;
 
       //bitmap mode, multi color
       case 3:
-        drawBitmapModeMultiColor(charPosInMem + cycleInLine - 5);
+        drawBitmapModeMultiColor(charPosInMem + cycleInLine - 4);
       break;
     }
   }
