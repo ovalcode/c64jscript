@@ -188,23 +188,23 @@ function keyboard() {
       var temp = keyarray[i];
       switch (temp) {
         //left
-        case 37:
+        case 100:
           result = result | 4;
         break;
         //right
-        case 39:
+        case 102:
           result = result | 8;
         break;
         //up
-        case 38:
+        case 104:
           result = result | 1;
         break;
         //down
-        case 40:
+        case 98:
           result = result | 2;
         break;
         //fire
-        case 45:
+        case 96:
           result = result | 16;
         break;
       }
