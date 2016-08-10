@@ -307,7 +307,7 @@ function video(backgroundCanvas, spriteBackgroundCanvas, foregroundCanvas, sprit
         requiredLineInSprite = requiredLineInSprite >> 1;
       
       var spriteIsMultiColor = (registers[0x1c] & spriteBit) != 0
-      if (yExpanded) {
+      if (xExpanded) {
         if (spriteIsMultiColor) {
           populateSpriteMultiColorLineExpanded(currentSprite, requiredLineInSprite);
         } else {
