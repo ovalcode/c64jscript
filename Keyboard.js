@@ -39,6 +39,7 @@ function keyboard() {
   const KEY_7 = 55;
   const KEY_8 = 56;
   const KEY_9 = 57;
+  const KEY_COMMA = 188;
 
 
   var keyarray = [];
@@ -176,6 +177,9 @@ function keyboard() {
       break;
       case KEY_9:
         return 32;
+      break;
+      case KEY_COMMA:
+        return 47;
       break;
       default: return -1;
     }

@@ -1,10 +1,11 @@
-function memory(allDownloadedCallback, keyboard, timerA, timerB, interruptController,tape)
+function memory(allDownloadedCallback, keyboard, timerA, timerB, interruptController,tape,disk)
 
 {
   var mytimerA = timerA;
   var mytimerB = timerB;
   var myinterruptController = interruptController;
   var mytape = tape;
+  var mydisk = disk;
   var mainMem = new Uint8Array(65536);
   mainMem[1] = 0xff;
   var IOUnclaimed = new Uint8Array(4096);
@@ -169,6 +170,19 @@ oReqChar.send(null);
     }
   }
 
+  function getDiskReg (diskval, c64val) {
+    c64valtemp = c64val >> 4;
+    c64valtemp = c64valtemp & 3;
+    diskval = ~diskval & 3;
+    result = diskval | c64valtemp;
+    result = ~result & 3;
+    //result = c64valtemp | (diskval << 2);
+    //result = ~result & 3;
+    result = result << 6;
+    result = result | (c64val & 0x3f);
+    return result;
+  }
+
   function IORead(address) {
     if ((address >= 0xdc00) & (address <= 0xdcff)) {
       return ciaRead(address);
@@ -176,6 +190,8 @@ oReqChar.send(null);
       return myVideo.readReg(address - 0xd000);
     } else if ((address >= 0xd800) & (address <= 0xdbe8)) {
       return myVideo.readColorRAM (address - 0xd800);
+    } else if (address == 0xdd00) {
+      return getDiskReg(disk.readPin(),IOUnclaimed[0xd00]);
     } else {
       return IOUnclaimed[address - 0xd000];
     } 
@@ -189,6 +205,8 @@ oReqChar.send(null);
     } else if ((address >= 0xd800) & (address <= 0xdbe8)) {
       return myVideo.writeColorRAM (address - 0xd800, value);
     } else {
+      if (address == 0xdd00)
+        disk.write(value);
       IOUnclaimed[address - 0xd000] = value;
       return;
     } 

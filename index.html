@@ -9,6 +9,7 @@
     <script src="Tape.js"></script>
     <script src="AlarmManager.js"></script>
     <script src="Timer.js"></script>
+    <script src="Disk.js"></script>
     <script src="InterruptController.js"></script>
   </head>
   <body onkeydown="mykeyboard.onkeydown(event)" onkeyup="mykeyboard.onkeyup(event)">
@@ -59,8 +60,9 @@ Break at: <input type="text" id="breakpoint">
       var myTimerA = new timer(myAlarmManager, myInterruptController,"A");
       var myTimerB = new timer(myAlarmManager, myInterruptController, "B");
       var myTape = new tape(myAlarmManager, myInterruptController);
-      var mymem = new memory(postInit,mykeyboard, myTimerA, myTimerB, myInterruptController, myTape);
-      var mycpu = new cpu(mymem);
+      var mydisk = new disk(myAlarmManager);
+      var mymem = new memory(postInit,mykeyboard, myTimerA, myTimerB, myInterruptController, myTape, mydisk);
+      var mycpu = new cpu(mymem);      
       myAlarmManager.setCpu(mycpu);
       myInterruptController.setCpu(mycpu);
       mycpu.setInterruptController(myInterruptController);
