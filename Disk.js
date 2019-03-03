@@ -1,7 +1,7 @@
 function disk(alarmManager) {
   var myAlarmManager = alarmManager;
   var isEnabled = true;
-  var ticksBeforeExpiry = 30;
+  var ticksBeforeExpiry = 500;
   var atnbit = 0;
   var c64databit = 0;
   var clkbit = 0;
@@ -54,7 +54,7 @@ function disk(alarmManager) {
       //started = true;
       //localData = 1;
     //}
-    ticksBeforeExpiry = 30;
+    ticksBeforeExpiry = 500;
   }
 
 }
